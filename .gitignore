@@ -1,5 +1,9 @@
+_test/
+coverage/
 dist/
+
 jspm_packages/
 node_modules/
+
 *.sublime-project
 *.sublime-workspace

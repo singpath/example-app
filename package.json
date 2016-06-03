@@ -4,18 +4,20 @@
   "description": "",
   "main": "src/example.js",
   "scripts": {
-    "build:test": "rm -rf dist/ && mkdir -p dist/ && jspm build ./tests.js dist/test.js --skip-rollup --format cjs",
-    "clean": " rm -rf dist/",
+    "clean": "rm -rf dist/ _test/",
+    "cover": "./tools/bin/cover.sh",
     "postinstall": "jspm install",
     "start": "python -m SimpleHTTPServer 8000",
-    "test": "npm run build:test && mocha --require source-map-support/register dist/test.js"
+    "test": "./tools/bin/test.sh"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "istanbul": "^0.4.3",
     "jspm": "^0.17.0-beta.17",
     "mocha": "^2.5.3",
+    "remap-istanbul": "^0.6.4",
     "source-map-support": "^0.4.0"
   },
   "jspm": {
