@@ -1,9 +1,10 @@
 import {expect} from 'chai';
+
 import {Controller} from './example.js'
 
 describe('example Controller', function() {
-  describe('updateZ', function() {
-    it('should assign to z the addition of x and y', function() {
+  describe('update', function() {
+    it('should assign the addition of x and y to total', function() {
       const ctrl = new Controller();
 
       ctrl.x = 1;
