@@ -11,6 +11,6 @@ describe('example Controller', function() {
       ctrl.y = 2;
       ctrl.update();
       expect(ctrl.total).to.equal(3);
-    })
+    });
   });
 });
