@@ -76,7 +76,7 @@ development with Microsoft Edge browser starting experimental deployment.
 
 ## Dependencies
 
-To install dependencies using the JSPM CLI, e.g. to install `angular`:
+To install dependencies, use the JSPM CLI; e.g. to install `angular`:
 ```shell
 jspm install angular@1.5.5
 ```
@@ -91,8 +91,8 @@ import angular from 'angular';
 angular.module('myProject', []);
 ```
 
-JSPM support its own registry of module and the NPM registry. It first try to
-find the JSPM registry. If it fails, it will suggest to explicitly install it
+JSPM support its own registry and the NPM registry. By default, it try to find
+a package JSPM registry. If it fails, it will suggest to explicitly install it
 from npm (using `npm:` prefix):
 ```
 jspm install npm:some-package
@@ -116,7 +116,7 @@ import 'some-dependency/some.css!css'
 ```
 
 Equivalent to:
-```
+```js
 import './my-project.css!';
 import 'some-dependency/some.css!'
 ```
@@ -172,7 +172,7 @@ mkdir -p dist/
 jspm /some/entry/point.js ./dist/my-project.js --minify --skip-source-maps
 ```
 
-The return script is self contain and can be used redirectly:
+The return script is self contain and can be used directly:
 ```html
 <!DOCTYPE html>
 <html>
@@ -187,7 +187,7 @@ The return script is self contain and can be used redirectly:
 ```
 
 By default it will create a [UMD](https://github.com/umdjs/umd) bundle and
-transcode the code ES5.
+transcode the code to ES5.
 
 It can be tweaked to not include dependencies (to load from external servers) or
 to not transcode some/any ES6 feature.
@@ -200,7 +200,7 @@ to not transcode some/any ES6 feature.
 Those scripts usually grow in complexity with the number of dependencies and
 the size of the application. It can be difficult to maintain.
 
-Once the HTTP2 protocol is fully supported and browsers implements the module
+Once the HTTP2 protocol is fully supported and browsers implement the module
 loader natively, the building process will be limited to compressing assets.
 A simple bash script would then work.
 
