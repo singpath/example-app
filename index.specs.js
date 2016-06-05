@@ -1,7 +1,6 @@
 /**
  * Example-app test entry point - import all tests.
  */
-
 import * as chai from 'chai';
 import sinonChai from 'sinon-chai';
 

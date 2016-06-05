@@ -7,6 +7,10 @@
     "doc": "docs"
   },
   "devDependencies": {
+    "babel-eslint": "^6.0.4",
+    "eslint": "^2.11.1",
+    "eslint-config-xo": "^0.14.1",
+    "eslint-plugin-babel": "^3.2.0",
     "istanbul": "^0.4.3",
     "jspm": "^0.17.0-beta.17",
     "mocha": "^2.5.3",
@@ -69,6 +73,8 @@
   "scripts": {
     "clean": "rm -rf dist/ _test/ coverage/",
     "cover": "./tools/bin/cover.sh",
+    "lint": "eslint src/ index*.js --fix",
+    "lint-no-fix": "eslint src/ index*.js",
     "postinstall": "jspm install",
     "start": "python -m SimpleHTTPServer 8000",
     "test": "./tools/bin/test.sh"

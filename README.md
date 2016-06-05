@@ -22,6 +22,7 @@ npm install
 
 - [JSPM](./docs/jspm.md): dependencies management and production build.
 - [Unit Testing](./docs/testing.md): using mocha and chai.
+- [Linting](./docs/lint.md).
 
 
 ## TODO
