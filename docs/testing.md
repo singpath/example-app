@@ -17,16 +17,17 @@ jspm install npm:chai
 ## Mocha + chai
 
 The tests are defined using [mocha], Nodejs test runner, and [chai], an
-assertion library.
+assertion library. For spy, with will use [sinon] with its chai plugin,
+[sinon-chai].
 
 example.js:
 ```js
-export function Controller() {
+export function Controller(someMath) {
   this.x = 0;
   this.y = 0;
   this.total = 0;
 
-  this.update = () => this.total = this.x + this.y;
+  this.update = () => this.total = someMath.add(this.x + this.y);
 }
 
 Controller.$inject = [];
@@ -36,20 +37,33 @@ Controller.$inject = [];
 example.specs.js:
 ```js
 import {expect} from 'chai';
+import sinon from 'sinon';
 
 import {Controller} from './example.js'
 
 describe('example Controller', function() {
+
   describe('update', function() {
+
     it('should assign the addition of x and y to total', function() {
-      const ctrl = new Controller();
+      // to compare reference (I could use an unlikely number instead);
+      const result = {};
+      const someMath = {
+        add: sinon.stub().returns(result)
+      };
+      const ctrl = new Controller(someMath);
 
       ctrl.x = 1;
       ctrl.y = 2;
       ctrl.update();
-      expect(ctrl.total).to.equal(3);
+
+      expect(someMath.add).to.have.been.calledOnce;
+      expect(someMath.add).to.have.been.calledWithExactly(1, 2);
+      expect(ctrl.total).to.equal(result);
     });
+
   });
+
 });
 
 ```
@@ -150,8 +164,16 @@ TODO: fix uncovered line report.
 
 ## References
 
-- [mocha](https://mochajs.org/)
-- [chai](http://chaijs.com/)
+- [mocha]
+- [chai]
+- [sinon]
+- [sinon-chai]
 - [istanbul](https://gotwarlost.github.io/istanbul/)
 - [source-map-support](https://github.com/evanw/node-source-map-support)
 - [remap-istanbul](https://github.com/SitePen/remap-istanbul)
+
+
+[mocha]: https://mochajs.org/
+[chai]: http://chaijs.com/
+[sinon]: http://sinonjs.org/
+[sinon-chai]: https://github.com/domenic/sinon-chai
