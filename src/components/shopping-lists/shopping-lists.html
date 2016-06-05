@@ -1,0 +1,19 @@
+<h2>Select a lists</h2>
+
+<!-- The component controller attached to scope as $ctrl by default -->
+<ul class="lists">
+	<li ng-if="$ctrl.lists.length == 0">No shopping list</li>
+	<li ng-repeat="list in $ctrl.lists" class="list">
+    <a ng-href="#/lists/{{list}}">{{list}}</a>
+    <button ng-click="$ctrl.remove(list)">&times;</button>
+	</li>
+</ul>
+
+<hr/>
+
+<form ng-submit="$ctrl.add($ctrl.newList)">
+	<p>
+	  <input type="text" ng-model="$ctrl.newList" size="30" placeholder="create new list" />
+	  <input class="btn-primary" type="submit" value="add" />
+	</p>
+</form>

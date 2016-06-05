@@ -5,23 +5,15 @@
   </head>
   <body>
     
-    <div ng-controller="ExampleController as ctrl">
-      <form novalidate class="simple-form">
-        X <input type="number" ng-model="ctrl.x" ng-change="ctrl.update()"/><br />
-        + <br/>
-        Y <input type="number" ng-model="ctrl.y" ng-change="ctrl.update()"/><br />
-        <br/>
-        = <input type="number" ng-model="ctrl.total" readonly=""/><br>
-      </form>
-      <pre>ctrl = {{ctrl | json}}</pre>
-    </div>
+    <!-- exampleApp component -->
+    <example-app></example-app>
 
     <script src="jspm_packages/system.js"></script>
     <script src="jspm.config.js"></script>
 
 		<script>
       System.import(
-        './app.js'
+        './index.js'
       ).catch(
         console.error.bind(console)
       );
