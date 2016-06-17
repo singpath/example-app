@@ -1,27 +1,39 @@
 import template from './shopping.html!text';
 
-class Controller {
+/**
+ * Component controller - provide the shopping list items observable to the
+ * view.
+ *
+ */
+class ShoppingController {
 
   constructor(eaLists) {
     this._eaLists = eaLists;
 
-    this.shopping = [];
+    this.shopping = undefined;
     this.newItem = '';
   }
 
   /**
-   * Handle initial shopping list load.
+   * Triggered each time a binding (element attributes bound to the controller
+   * instance) is changes.
    *
-   * $onInit is an Angular controller hook. It's called after the constructor
-   * call and after the binding of component properties (`listId` in that case)
-   * to the controller instance.
+   * Triggered when this.listId is set or changed.
    *
-   * Note: the bound component properties are accessible in the constructor
-   * in Angular 1.5, but it's a deprecated feature; you cannot assuming the
-   * binding preceeds the constructor call.
    */
-  $onInit() {
-    this.shopping = this._eaLists.getListById(this.listId);
+  $onChanges(changes) {
+    if (!changes.listId) {
+      return;
+    }
+
+    if (!this.listId) {
+      this.list = null;
+      this.shopping = null;
+      return;
+    }
+
+    this.list = this._eaLists.shoppingList(this.listId);
+    this.shopping = this.list.items();
   }
 
   /**
@@ -30,7 +42,7 @@ class Controller {
    * @param {string} item
    */
   add(item) {
-    this.shopping.add(item);
+    this.list.add(item);
     this.newItem = '';
   }
 
@@ -40,17 +52,18 @@ class Controller {
    * @param  {string} item
    */
   remove(item) {
-    this.shopping.remove(item);
+    this.list.remove(item);
   }
 
 }
 
-Controller.$inject = ['eaLists'];
+// See https://docs.angularjs.org/guide/di#-inject-property-annotation
+ShoppingController.$inject = ['eaLists'];
 
 export const component = {
   template,
   bindings: {
     listId: '<'
   },
-  controller: Controller
+  controller: ShoppingController
 };

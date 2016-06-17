@@ -1,20 +1,30 @@
 <h2>{{$ctrl.listId}}</h2>
 
-<ul>
-  <li ng-if="$ctrl.shopping.length == 0">Nothing to buy \o/</li>
-  <li ng-repeat="item in $ctrl.shopping">
-      {{item}}
-      <button ng-click="$ctrl.remove(item)">&times;</button>
-  </li>
-</ul>
+<div rx-subscribe="$ctrl.shopping">
 
-<p><small><a href="#/">back</a></small></p>
+	<p ng-if="!$rx.next">Loading...</p>
 
-<hr/>
+	<div ng-if="$rx.next">
+		
+		<ul>
+		  <li ng-if="$rx.next.length == 0">Nothing to buy \o/</li>
+		  <li ng-repeat="item in $rx.next">
+		      {{item.$key}}
+		      <button ng-click="$ctrl.remove(item.$key)">&times;</button>
+		  </li>
+		</ul>
 
-<form ng-submit="$ctrl.add($ctrl.newItem)">
-  <p>
-    <input type="text" ng-model="$ctrl.newItem" size="30" placeholder="create new item" />
-    <input class="btn-primary" type="submit" value="add" />
-  </p>
-</form>
+		<p><small><a href="#/">back</a></small></p>
+
+		<hr/>
+
+		<form ng-submit="$ctrl.add($ctrl.newItem)">
+		  <p>
+		    <input type="text" ng-model="$ctrl.newItem" size="30" placeholder="create new item" />
+		    <input class="btn-primary" type="submit" value="add" />
+		  </p>
+		</form>
+
+	</div>
+	
+</div>

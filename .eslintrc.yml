@@ -32,3 +32,4 @@ rules:
   prefer-template: warn
   prefer-arrow-callback: "off"
   babel/new-cap: "off"
+  no-warning-comments: warn
