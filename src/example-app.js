@@ -5,8 +5,8 @@ import angular from 'angular';
 import firebase from 'firebase';
 import Rx from 'example-app/tools/rx.js';
 
-import ngRxSubscribe from 'angular-rx-subscribe';
-import rxFirebase from 'rx-firebase';
+import * as ngRxSubscribe from 'angular-rx-subscribe';
+import * as rxFirebase from 'rx-firebase';
 
 import 'angular-route';
 
