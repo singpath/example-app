@@ -7,10 +7,10 @@
 		
 		<h2>Select a lists</h2>
 
-		<ul class="lists">
+		<ul class="list">
 			<li ng-if="$rx.next.length == 0">No shopping list</li>
-			<li ng-repeat="list in $rx.next" class="list">
-		    <a ng-href="#/lists/{{list.$key}}">{{list.$key}}</a>
+			<li ng-repeat="list in $rx.next" class="list item">
+		    <a ng-href="#/lists/{{list.$key}}" class="main-item">{{list.$key}}</a>
 		    <button ng-click="$ctrl.remove(list.$key)">&times;</button>
 			</li>
 		</ul>

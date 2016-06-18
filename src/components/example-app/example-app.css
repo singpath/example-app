@@ -1,0 +1,22 @@
+example-app {
+  display: block;
+  width: 300px;
+  margin: 0 auto; 
+  padding: 10px;
+  border: solid black 1px;
+}
+
+.list {
+  padding: 0;
+  list-style: none;
+}
+
+.list .item {
+  display: flex;
+  flex-direction: row;
+  margin: 5px 0;
+}
+
+.main-item {
+  flex-grow: 1;
+}

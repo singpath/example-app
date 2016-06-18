@@ -4,6 +4,7 @@
  * Should configure routes and render the view.
  */
 import template from './example-app.html!text';
+import './example-app.css!';
 
 /**
  * App controller - make sure the user is always signed in.

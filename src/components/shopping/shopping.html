@@ -6,10 +6,10 @@
 
 	<div ng-if="$rx.next">
 		
-		<ul>
+		<ul class="list">
 		  <li ng-if="$rx.next.length == 0">Nothing to buy \o/</li>
-		  <li ng-repeat="item in $rx.next">
-		      {{item.$key}}
+		  <li ng-repeat="item in $rx.next" class="item">
+		      <span class="main-item">{{item.$key}}</span>
 		      <button ng-click="$ctrl.remove(item.$key)">&times;</button>
 		  </li>
 		</ul>
