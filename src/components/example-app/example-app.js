@@ -14,11 +14,11 @@ class AppController {
   constructor($log, eaLists) {
     this.subscription = eaLists.user.get().subscribe(user => {
       if (!user) {
-        eaLists.signIn().catch(
+        eaLists.user.signIn().catch(
           e => $log.error(`Failed to log in: ${e.toString()}.`)
         );
       } else if (!user.registeredAt) {
-        eaLists.register().catch(
+        eaLists.user.register().catch(
           e => $log.error(`Failed to register in: ${e.toString()}.`)
         );
       }
