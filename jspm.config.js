@@ -34,11 +34,15 @@ SystemJS.config({
   map: {
     "angular": "github:angular/bower-angular@1.5.6",
     "angular-route": "github:angular/bower-angular-route@1.5.6",
+    "angular-rx-subscribe": "npm:angular-rx-subscribe@0.2.5",
     "buffer": "github:jspm/nodelibs-buffer@0.2.0-alpha",
     "chai": "npm:chai@3.5.0",
     "css": "github:systemjs/plugin-css@0.1.22",
+    "firebase": "github:firebase/firebase-bower@3.0.5",
     "get-parameter-names": "npm:get-parameter-names@0.3.0",
     "process": "github:jspm/nodelibs-process@0.2.0-alpha",
+    "rx-firebase": "npm:rx-firebase@0.4.0",
+    "rxjs": "npm:rxjs@5.0.0-beta.8",
     "sinon": "npm:sinon@1.17.4",
     "sinon-chai": "npm:sinon-chai@2.8.0",
     "text": "github:systemjs/plugin-text@0.0.8",
@@ -90,6 +94,11 @@ SystemJS.config({
     "npm:deep-eql@0.1.3": {
       "map": {
         "type-detect": "npm:type-detect@0.1.1"
+      }
+    },
+    "npm:rxjs@5.0.0-beta.8": {
+      "map": {
+        "symbol-observable": "npm:symbol-observable@0.2.4"
       }
     }
   }

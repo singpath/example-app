@@ -74,6 +74,7 @@ import * as all from './mymodule.js';
 The module syntax is part the ES6/ES2015 standard. The loader is still in
 development with Microsoft Edge browser starting experimental deployment.
 
+
 ## Dependencies
 
 To install dependencies, use the JSPM CLI; e.g. to install `angular`:
@@ -121,6 +122,7 @@ import './my-project.css!';
 import 'some-dependency/some.css!'
 ```
 
+
 ### Text assets
 
 You can also load text and assign it to a variable using the text loaded:
@@ -132,6 +134,7 @@ Then:
 ```js
 import template from './template.html!text'
 ```
+
 
 ## Development
 
@@ -169,7 +172,7 @@ usually just one bootstrap module:
 The build command is `jspm build [main module] [output script]`:
 ```
 mkdir -p dist/
-jspm /some/entry/point.js ./dist/my-project.js --minify --skip-source-maps
+jspm build /some/entry/point.js ./dist/my-project.js --minify --skip-source-maps
 ```
 
 The return script is self contain and can be used directly:

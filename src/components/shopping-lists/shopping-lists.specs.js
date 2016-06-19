@@ -15,7 +15,7 @@ describe('eaShoppingList component', function() {
 
       // The lists service stub
       shoppingListsService = {
-        getLists: sinon.stub().returns(lists),
+        all: sinon.stub().returns(lists),
         create: sinon.spy(),
         remove: sinon.spy()
       };
@@ -27,7 +27,7 @@ describe('eaShoppingList component', function() {
     testInjectMatch(component.controller);
 
     it('should load the list of shopping list.', function() {
-      expect(shoppingListsService.getLists).to.have.been.calledOnce;
+      expect(shoppingListsService.all).to.have.been.calledOnce;
       expect(ctrl.lists).to.equal(lists);
     });
 
@@ -39,12 +39,9 @@ describe('eaShoppingList component', function() {
         expect(shoppingListsService.create).to.have.been.calledWith('grocery');
       });
 
-      it('should refresh the list', function() {
-        const refreshedLists = ['grocery'];
-
-        shoppingListsService.getLists.returns(refreshedLists);
+      it('should reset newList', function() {
         ctrl.add('grocery');
-        expect(ctrl.lists).to.equal(refreshedLists);
+        expect(ctrl.newList).to.equal('');
       });
 
     });
@@ -55,14 +52,6 @@ describe('eaShoppingList component', function() {
         ctrl.remove('grocery');
         expect(shoppingListsService.remove).to.have.been.calledOnce;
         expect(shoppingListsService.remove).to.have.been.calledWith('grocery');
-      });
-
-      it('should refresh the list', function() {
-        const refreshedLists = [];
-
-        shoppingListsService.getLists.returns(refreshedLists);
-        ctrl.remove('grocery');
-        expect(ctrl.lists).to.equal(refreshedLists);
       });
 
     });

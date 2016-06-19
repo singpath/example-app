@@ -16,4 +16,4 @@ mkdir -p "$DIST"
 jspm build "$SRC" "$OUTPUT" --skip-rollup --format cjs
 
 # Run test using mocha (test runner).
-mocha --require source-map-support/register "$OUTPUT"
+mocha -b --require source-map-support/register "$OUTPUT"

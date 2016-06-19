@@ -1,36 +1,41 @@
 import sinon from 'sinon';
 import {expect} from 'chai';
 import {testInjectMatch} from 'example-app/tools/inspect.js';
+import Rx from 'example-app/tools/rx.js';
 
 import {component} from './shopping.js';
 
 describe('eaShopping component', function() {
 
   describe('controller', function() {
-    let ctrl, shoppingListsService, shopping;
+    let ctrl, shoppingListsService, list, shopping;
 
     beforeEach(function() {
-      // The lists our service will provide.
-      shopping = [];
-      shopping.add = sinon.spy();
-      shopping.remove = sinon.spy();
+      // The shopping list Observable our service will provide.
+      shopping = new Rx.Subject();
+      list = {
+        items: sinon.stub().returns(shopping),
+        add: sinon.spy(),
+        remove: sinon.spy()
+      };
 
       // The lists service stub
       shoppingListsService = {
-        getListById: sinon.stub().returns(shopping)
+        shoppingList: sinon.stub().withArgs('grocery').returns(list),
+        createItem: sinon.spy(),
+        removeItem: sinon.spy()
       };
 
       // The controller, instanciated with its dependencies.
       ctrl = new component.controller(shoppingListsService);
       ctrl.listId = 'grocery';
-      ctrl.$onInit();
+      ctrl.$onChanges({listId: {}});
     });
 
     testInjectMatch(component.controller);
 
     it('should load the shopping list.', function() {
-      expect(shoppingListsService.getListById).to.have.been.calledOnce;
-      expect(shoppingListsService.getListById).to.have.been.calledWith(ctrl.listId);
+      expect(ctrl.list).to.equal(list);
       expect(ctrl.shopping).to.equal(shopping);
     });
 
@@ -38,8 +43,8 @@ describe('eaShopping component', function() {
 
       it('should add a new item', function() {
         ctrl.add('bread');
-        expect(shopping.add).to.have.been.calledOnce;
-        expect(shopping.add).to.have.been.calledWith('bread');
+        expect(list.add).to.have.been.calledOnce;
+        expect(list.add).to.have.been.calledWith('bread');
       });
 
     });
@@ -48,8 +53,8 @@ describe('eaShopping component', function() {
 
       it('should remove a new list', function() {
         ctrl.remove('bread');
-        expect(shopping.remove).to.have.been.calledOnce;
-        expect(shopping.remove).to.have.been.calledWith('bread');
+        expect(list.remove).to.have.been.calledOnce;
+        expect(list.remove).to.have.been.calledWith('bread');
       });
 
     });

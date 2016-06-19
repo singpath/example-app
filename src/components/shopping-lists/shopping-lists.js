@@ -5,38 +5,43 @@
 import template from './shopping-lists.html!text';
 
 /**
- * Component controller - should provide the shopping lists to the view.
+ * Component controller - should provide the shopping lists observable to the
+ * view.
  *
  */
-class Controller {
+class ShoppingListsController {
 
   constructor(eaLists) {
     this._lists = eaLists;
-    this.lists = [];
+
+    this.lists = undefined;
     this.newList = '';
 
-    this.refreshList();
+    this.lists = this._lists.all();
   }
 
-  refreshList() {
-    this.lists = this._lists.getLists();
-  }
-
+  /**
+   * Create a new list.
+   *
+   * @param {string} name
+   */
   add(name) {
     this._lists.create(name);
     this.newList = '';
-    this.refreshList();
-
   }
 
+  /**
+   * Delete a list.
+   *
+   * @param {string} name
+   */
   remove(name) {
     this._lists.remove(name);
-    this.refreshList();
   }
 
 }
 
 // See https://docs.angularjs.org/guide/di#-inject-property-annotation
-Controller.$inject = ['eaLists'];
+ShoppingListsController.$inject = ['eaLists'];
 
-export const component = {template, controller: Controller};
+export const component = {template, controller: ShoppingListsController};
