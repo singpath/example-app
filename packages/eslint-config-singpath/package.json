@@ -1,0 +1,33 @@
+{
+  "name": "eslint-config-singpath",
+  "version": "0.0.2",
+  "main": "index.js",
+  "author": "Chris Boesch",
+  "description": "Default ESLint configuration for Singpath projects.",
+  "scripts": {
+    "test": "node ./index.js && node ./module.js && node ./node.js",
+    "prepublish": "npm test"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "module.js",
+    "node.js",
+    "default.yml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/singpath/example-app"
+  },
+  "bugs": "https://github.com/singpath/example-app/issues/",
+  "dependencies": {
+    "js-yaml": "^3.5.1"
+  },
+  "keywords": [
+    "singpathconfig",
+    "eslint-config",
+    "eslint"
+  ],
+  "license": "MIT"
+}
