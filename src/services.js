@@ -38,6 +38,11 @@
  */
 import Rx from 'example-app/tools/rx.js';
 
+/**
+ * Return a firebase timestamp service value.
+ *
+ * @return {Object}
+ */
 function timestamp() {
   return {'.sv': 'timestamp'};
 }
@@ -82,18 +87,23 @@ function timestamp() {
  */
 export class User {
 
+  /**
+   * User service
+   *
+   * @param  {firebase.App} firebaseApp a firebaseApp to retriev User details from
+   */
   constructor(firebaseApp) {
-    this._firebaseApp = firebaseApp;
+    this.firebaseApp = firebaseApp;
     this._signingOut = new Rx.Subject();
   }
 
   /**
    * Emit auth. status changes.
    *
-   * @return {Observable} emit Firebase User object
+   * @return {Observable<?firebase.User>}
    */
   auth() {
-    return this._firebaseApp.auth().observeAuthState().merge(
+    return this.firebaseApp.auth().observeAuthState().merge(
       this._signingOut
     ).distinctUntilChanged();
   }
@@ -101,10 +111,10 @@ export class User {
   /**
    * Sign user anonymously.
    *
-   * @return {[type]} [description]
+   * @return {Promise<firebase.User,Error>}
    */
   signIn() {
-    return this._firebaseApp.auth().signInAnonymously();
+    return this.firebaseApp.auth().signInAnonymously();
   }
 
   /**
@@ -114,22 +124,21 @@ export class User {
    * delay should be long enough to allow resource using the current user
    * status to tear themself down.
    *
-   * @return {Promise}
+   * @return {Promise<void, Error>}
    */
   signOut() {
     const delayPeriod = 50;
-    const delayed = this._signingOut.auditTime(delayPeriod).take(1).toPromise();
+    const delayed = this._signingOut.auditTime(delayPeriod).first().toPromise();
 
     this._signingOut.next(null);
 
-    return delayed.then(() => this._firebaseApp.auth().signOut());
+    return delayed.then(() => this.firebaseApp.auth().signOut());
   }
 
   /**
    * Return the current user registered data.
    *
-   * @return {Observable} emit snapshots of the user registration data
-   *                      or undefined if the user logged off.
+   * @return {Observable<?{$key: string, registeredAt: number}>}
    */
   get() {
     return this.auth().switchMap(fbUser => {
@@ -139,7 +148,7 @@ export class User {
         return Rx.Observable.of(undefined);
       }
 
-      return this._firebaseApp.database().ref(`/users/${uid}`).observe('value');
+      return this.firebaseApp.database().ref(`/users/${uid}`).observe('value');
     });
   }
 
@@ -148,26 +157,26 @@ export class User {
    *
    * Relies on anonymous signIn.
    *
-   * @return {Promise}
+   * @return {Promise<string, Error>} resolves to the the user UID.
    */
   uid() {
-    const auth = this._firebaseApp.auth();
+    const auth = this.firebaseApp.auth();
     const user = auth.currentUser;
 
     if (user && user.uid) {
       return Promise.resolve(user.uid);
     }
 
-    return this.signIn().then(user => user.uid);
+    return this.signIn().then(u => u.uid);
   }
 
   /**
    * Set registration data at "/user/$uid".
    *
-   * @return {Promise}
+   * @return {Promise<void, Error>}
    */
   register() {
-    const db = this._firebaseApp.database();
+    const db = this.firebaseApp.database();
 
     return this.uid().then(
       id => db.ref(`/users/${id}`).set({registeredAt: timestamp()})
@@ -179,7 +188,8 @@ export class User {
    */
   destroy() {
     this._signingOut.complete();
-    this._firebaseApp = null;
+
+    this.firebaseApp = null;
     this._signingOut = null;
   }
 
@@ -225,9 +235,15 @@ export class User {
  */
 export class ShoppingList {
 
+  /**
+   * A shopping list service.
+   *
+   * @param   {string} name  list name
+   * @param   {Lists}  lists list service
+   */
   constructor(name, lists) {
     this.lists = lists;
-    this.db = lists._firebaseApp.database();
+    this.db = lists.firebaseApp.database();
     this.user = lists.user;
 
     this.name = name;
@@ -237,9 +253,12 @@ export class ShoppingList {
    * Observable creating the list if it doesn't exist and pushing the list
    * of shopping items everytime it changes.
    *
-   * @return {Observable}
+   * Emit undefined while when user is logged off.
+   *
+   * @return {Observable<({$key: string, createdAt: number}[]|void)>}
    */
   items() {
+
     // observe changes in the auth status
     return this.user.get().switchMap(user => {
 
@@ -263,6 +282,7 @@ export class ShoppingList {
    * an error. It must not push any "next" notification.
    *
    * @private
+   * @return {Observable} completes once the list exists
    */
   _initList() {
     return Rx.Observable.fromPromise(
@@ -270,6 +290,8 @@ export class ShoppingList {
         if (!exists) {
           return this.lists.create(this.name);
         }
+
+        return null;
       })
     ).ignoreElements(); // only push an error or complete notification.
   }
@@ -281,6 +303,8 @@ export class ShoppingList {
    * Notify an error if the list get removes.
    *
    * @private
+   * @param  {string}     uid user uid
+   * @return {Observable}     emits an array in sync with the the list items.
    */
   _listItems(uid) {
     return this._listExists(uid).switchMap(exists => {
@@ -297,6 +321,8 @@ export class ShoppingList {
    * Observable following the list existence status
    *
    * @private
+   * @param {string} uid user uid.
+   * @return {Observable<boolean>}
    */
   _listExists(uid) {
     return this.db.ref(`/lists/${uid}/${this.name}`).observe('value').map(
@@ -307,8 +333,10 @@ export class ShoppingList {
   /**
    * Add item to the list
    *
-   * @param   {string}  item
-   * @returns {Promise}
+   * The name must be a valid firebase key.
+   *
+   * @param  {string}  item a name
+   * @return {Promise<void, Error>}
    */
   add(item) {
     return this.user.uid().then(
@@ -319,8 +347,8 @@ export class ShoppingList {
   /**
    * remove item.
    *
-   * @param  {string}  item
-   * @return {Promise}
+   * @param  {string}  item item name/key
+   * @return {Promise<void, Error>}
    */
   remove(item) {
     return this.user.uid().then(
@@ -358,7 +386,7 @@ export class ShoppingList {
 export class Lists {
 
   constructor(firebaseApp) {
-    this._firebaseApp = firebaseApp;
+    this.firebaseApp = firebaseApp;
     this.user = new User(firebaseApp);
   }
 
@@ -378,7 +406,7 @@ export class Lists {
         return Rx.Observable.of(undefined);
       }
 
-      return this._firebaseApp.database().ref(
+      return this.firebaseApp.database().ref(
         `/lists/${user.$key}`
       ).orderByKey().observeChildren();
     });
@@ -387,11 +415,11 @@ export class Lists {
   /**
    * Check a list exist.
    *
-   * @param  {string}  name
-   * @return {Promise}
+   * @param  {string}  name list name
+   * @return {Promise<boolean, Error>}
    */
   exists(name) {
-    const db = this._firebaseApp.database();
+    const db = this.firebaseApp.database();
 
     return this.user.uid().then(
       uid => db.ref(`/lists/${uid}/${name}`).once('value')
@@ -403,11 +431,13 @@ export class Lists {
   /**
    * Create a new list.
    *
-   * @param  {string}  name
-   * @return {Promise}
+   * `name` Must be a valid firebase key.
+   *
+   * @param  {string}  name list name
+   * @return {Promise<void, Error>}
    */
   create(name) {
-    const db = this._firebaseApp.database();
+    const db = this.firebaseApp.database();
 
     return this.user.uid().then(
       uid => db.ref(`/lists/${uid}/${name}`).set({createdAt: timestamp()})
@@ -417,14 +447,14 @@ export class Lists {
   /**
    * Delete a shopping list.
    *
-   * @param  {string}  name
-   * @return {Promise}
+   * @param  {string}  name list name/key
+   * @return {Promise<void, Error>}
    */
   remove(name) {
-    const db = this._firebaseApp.database();
+    const db = this.firebaseApp.database();
 
     return this.user.uid().then(
-      uid => db.ref(`/`).update({
+      uid => db.ref('/').update({
         [`lists/${uid}/${name}`]: null,
         [`listItems/${uid}/${name}`]: null
       })
@@ -432,7 +462,10 @@ export class Lists {
   }
 
   /**
-   * Get or create a shopping list
+   * Get shopping list service
+   *
+   * @param  {string} name list name
+   * @return {ShoppingList}
    */
   shoppingList(name) {
     return new ShoppingList(name, this);

@@ -9,6 +9,7 @@ describe('eaShopping component', function() {
     let ctrl, shoppingListsService, list, shopping;
 
     beforeEach(function() {
+
       // The shopping list Observable our service will provide.
       shopping = new Rx.Subject();
       list = {

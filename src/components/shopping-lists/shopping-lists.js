@@ -23,7 +23,7 @@ class ShoppingListsController {
   /**
    * Create a new list.
    *
-   * @param {string} name
+   * @param {string} name list name.
    */
   add(name) {
     this._lists.create(name);
@@ -33,7 +33,7 @@ class ShoppingListsController {
   /**
    * Delete a list.
    *
-   * @param {string} name
+   * @param {string} name list name.
    */
   remove(name) {
     this._lists.remove(name);
@@ -44,4 +44,6 @@ class ShoppingListsController {
 // See https://docs.angularjs.org/guide/di#-inject-property-annotation
 ShoppingListsController.$inject = ['eaLists'];
 
-export const component = {template, controller: ShoppingListsController};
+export const component = {
+  template, controller: ShoppingListsController
+};

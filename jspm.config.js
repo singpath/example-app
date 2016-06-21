@@ -5,7 +5,56 @@ SystemJS.config({
     "example-app/": "src/"
   },
   browserConfig: {
-    "baseURL": "/"
+    "baseURL": "/",
+    "depCache": {
+      "example-app/components/example-app/example-app.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./example-app.html!text",
+        "./example-app.css!"
+      ],
+      "example-app/components/shopping-lists/shopping-lists.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./shopping-lists.html!text"
+      ],
+      "example-app/components/shopping/shopping.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./shopping.html!text"
+      ],
+      "example-app/example-app.js": [
+        "angular",
+        "firebase",
+        "example-app/tools/rx.js",
+        "angular-rx-subscribe",
+        "rx-firebase",
+        "angular-route",
+        "example-app/services.js",
+        "example-app/components/example-app/example-app.js",
+        "example-app/components/shopping/shopping.js",
+        "example-app/components/shopping-lists/shopping-lists.js"
+      ],
+      "example-app/services.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/defineProperty.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "example-app/tools/rx.js"
+      ],
+      "example-app/tools/rx.js": [
+        "rxjs/bundles/Rx.umd.js"
+      ],
+      "github:angular/bower-angular-route@1.5.6/angular-route.js": [
+        "angular"
+      ],
+      "index.js": [
+        "angular",
+        "example-app"
+      ],
+      "npm:angular-rx-subscribe@0.2.5/angular-rx-subscribe.js": [
+        "angular"
+      ]
+    }
   },
   devConfig: {
     "map": {

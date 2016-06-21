@@ -9,6 +9,7 @@ describe('eaShoppingList component', function() {
     let ctrl, shoppingListsService, lists;
 
     beforeEach(function() {
+
       // The lists our service will provide.
       lists = [];
 

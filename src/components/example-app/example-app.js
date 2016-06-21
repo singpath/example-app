@@ -34,4 +34,6 @@ class AppController {
 // See https://docs.angularjs.org/guide/di#-inject-property-annotation
 AppController.$inject = ['$log', 'eaLists'];
 
-export const component = {template, controller: AppController};
+export const component = {
+  template, controller: AppController
+};
