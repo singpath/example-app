@@ -38,6 +38,7 @@ SystemJS.config({
     "buffer": "github:jspm/nodelibs-buffer@0.2.0-alpha",
     "chai": "npm:chai@3.5.0",
     "css": "github:systemjs/plugin-css@0.1.22",
+    "dirty-chai": "npm:dirty-chai@1.2.2",
     "firebase": "github:firebase/firebase-bower@3.0.5",
     "get-parameter-names": "npm:get-parameter-names@0.3.0",
     "process": "github:jspm/nodelibs-process@0.2.0-alpha",
@@ -86,7 +87,7 @@ SystemJS.config({
     },
     "npm:chai@3.5.0": {
       "map": {
-        "assertion-error": "npm:assertion-error@1.0.1",
+        "assertion-error": "npm:assertion-error@1.0.2",
         "type-detect": "npm:type-detect@1.0.0",
         "deep-eql": "npm:deep-eql@0.1.3"
       }

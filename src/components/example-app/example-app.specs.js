@@ -1,4 +1,4 @@
-import {expect} from 'chai';
+import {expect} from 'example-app/tools/chai.js';
 
 import {component} from './example-app.js';
 import template from './example-app.html!text';

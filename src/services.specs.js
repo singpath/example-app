@@ -1,9 +1,7 @@
 /* eslint max-nested-callbacks: "off"*/
 
 import Rx from 'example-app/tools/rx.js';
-import sinon from 'sinon';
-import {expect} from 'chai';
-import {testInjectMatch} from 'example-app/tools/inspect.js';
+import {expect, sinon, testInjectMatch} from 'example-app/tools/chai.js';
 
 import * as services from './services.js';
 
@@ -71,7 +69,7 @@ describe('services', function() {
 
       it('should sign user out', function() {
         return user.signOut().then(
-          () => expect(auth.signOut).to.have.been.calledOnce
+          () => expect(auth.signOut).to.have.been.calledOnce()
         );
       });
 
@@ -80,7 +78,7 @@ describe('services', function() {
         const signingOut = user.signOut();
 
         return signal.then(() => {
-          expect(auth.signOut).to.not.have.been.called;
+          expect(auth.signOut).to.not.have.been.called();
 
           return signingOut;
         });
@@ -247,7 +245,7 @@ describe('services', function() {
 
         return listsService.exists('grocery').then(exists => {
           expect(exists).to.equal(true);
-          expect(ref.once).to.have.been.calledOnce;
+          expect(ref.once).to.have.been.calledOnce();
         });
       });
 
@@ -262,7 +260,7 @@ describe('services', function() {
 
         return listsService.exists('grocery').then(exists => {
           expect(exists).to.equal(false);
-          expect(ref.once).to.have.been.calledOnce;
+          expect(ref.once).to.have.been.calledOnce();
         });
       });
 
@@ -286,7 +284,7 @@ describe('services', function() {
         db.ref = sinon.stub().withArgs('/lists/bob/grocery').returns(ref);
 
         return listsService.create('grocery').then(
-          () => expect(ref.set).to.have.been.calledOnce
+          () => expect(ref.set).to.have.been.calledOnce()
         );
       });
 
@@ -313,7 +311,7 @@ describe('services', function() {
         db.ref = sinon.stub().withArgs('/lists/bob/grocery').returns(ref);
 
         return listsService.remove('grocery').then(
-          () => expect(ref.update).to.have.been.calledOnce
+          () => expect(ref.update).to.have.been.calledOnce()
         );
       });
 
@@ -403,7 +401,7 @@ describe('services', function() {
         db.ref.withArgs('/listItems/bob/grocery/bread').returns(ref);
 
         return shopping.add('bread').then(
-          () => expect(ref.set).to.have.been.calledOnce
+          () => expect(ref.set).to.have.been.calledOnce()
         );
       });
 
@@ -423,7 +421,7 @@ describe('services', function() {
         db.ref.withArgs('/listItems/bob/grocery/bread').returns(ref);
 
         return shopping.remove('bread').then(
-          () => expect(ref.remove).to.have.been.calledOnce
+          () => expect(ref.remove).to.have.been.calledOnce()
         );
       });
 
