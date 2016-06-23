@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example</title>
+  </head>
+  <body>
+    
+    <example-app></example-app>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular-route.min.js"></script>
+    <script src="//www.gstatic.com/firebasejs/3.0.5/firebase.js"></script>
+    <script src="//npmcdn.com/@reactivex/rxjs@5.0.0-beta.8/dist/global/Rx.umd.min.js"></script>
+    <script src="./example-app.js"></script>
+    <script>
+      // Create a module to overwrite default settings.
+      var module = angular.module('exampleApp.bootstrap', ['exampleApp']);
+
+      // Overwrite default firebase settings:
+      // module.constant('firebaseApp', firebase.initializeApp([...]));
+
+      angular.element(document).ready(function() {
+        angular.bootstrap(document, [module.name], {strictDi: true});
+      });
+    </script>
+  </body>
+</html>

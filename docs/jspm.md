@@ -140,7 +140,6 @@ import template from './template.html!text'
 
 Loading and trans-coding modules happens in the browser. You need to include
 `system.js`, the jspm configuration and then use the System API to load modules:
-usually just one bootstrap module:
 ```html
 <!DOCTYPE html>
 <html>
@@ -155,11 +154,24 @@ usually just one bootstrap module:
     <script src="jspm.config.js"></script>
 
     <script>
-      System.import(
-        './app.js'
-      ).catch(function(err) {
-        console.error(err);
-      });
+      Promise.all([
+        System.import('angular'),
+        System.import('example-app')
+      ]).then(modules => {
+        const angular = modules[0];
+        const exampleApp = modules[1];
+        const module = angular.module('exampleApp.bootstrap', [exampleApp.module.name]);
+
+        // Overwrite constant here; e.g.:
+        //
+        // module.constant('firebaseApp', firebase.initializeApp([...]));
+
+        angular.element(document).ready(function() {
+          angular.bootstrap(document, [module.name], {strictDi: true});
+        });
+      }).catch(
+        console.error.bind(console)
+      );
     </script>
 
   </body>
@@ -192,8 +204,20 @@ The return script is self contain and can be used directly:
 By default it will create a [UMD](https://github.com/umdjs/umd) bundle and
 transcode the code to ES5.
 
-It can be tweaked to not include dependencies (to load from external servers) or
-to not transcode some/any ES6 feature.
+It can be tweaked to not include dependencies (to load from external servers):
+```
+jspm build example-app - angular \
+  --global-name exampleApp \
+  --global-deps "{'angular/angular.js':'angular'}" \
+  --format umd --skip-source-maps
+```
+
+"example-app - angular" request to build "example-app" module, minus any
+dependency to angular. "--global-name" defines the global variable the
+"example-app" will be set to. "--global-deps" defines which global variable to
+seek to find the missing modules.
+
+See [tools/bin/build.sh](./tools/bin/build.sh) for more details.
 
 
 ## Alternative to JSPM

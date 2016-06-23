@@ -8,15 +8,16 @@ npm run lint
 
 ## setup
 
-Install `eslint` and the set of default rules (`eslint-config-singpath`):
+Install `eslint` and the set of default rules (`eslint-config-singpath`)
+and a plugin to handle html files:
 ```shell
-npm install --save-dev eslint eslint-config-singpath
+npm install --save-dev eslint eslint-plugin-html eslint-config-singpath
 ```
 
 Setup a YAML or JSON encoded eslint config file:
 ```shell
 rm .eslintrc*
-echo "extends: singpath/module" > .eslintrc.yml
+echo -e 'extends: singpath/module\nplugins: ["html"]' > .eslintrc.yml
 ```
 
 To run lint, add a lint command to `package.json` (add it to the map of command
@@ -24,7 +25,7 @@ in the `scripts` object):
 ```json
 {
   "scripts": {
-    "lint": "eslint src/ index*.js",
+    "lint": "eslint src/ index.html",
     "test": "./tools/bin/test.sh"
   }
 }
@@ -118,7 +119,7 @@ Once the rules are stable, you can change the the lint command to:
 
 ## Rule exceptions
 
-You sometime need to turn off a rules for just one instance. E.g. `index.js` is
+You sometime need to turn off a rules for just one instance. E.g. `index.html` is
 exclusively run in the browser and need to access `document`. The error can be
 disable with those comments:
 ```js

@@ -1,6 +1,6 @@
-_test/
-coverage/
-dist/
+_test/**
+coverage/**
+dist/**
 
 jspm_packages/
 node_modules/

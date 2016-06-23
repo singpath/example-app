@@ -11,6 +11,7 @@
     "eslint": "^2.13.1",
     "eslint-config-singpath": "file:packages/eslint-config-singpath",
     "eslint-plugin-babel": "^3.2.0",
+    "eslint-plugin-html": "^1.5.1",
     "istanbul": "^0.4.3",
     "jspm": "^0.17.0-beta.17",
     "mocha": "^2.5.3",
@@ -77,12 +78,14 @@
     }
   },
   "scripts": {
+    "build": "./tools/bin/build.sh",
     "clean": "rm -rf dist/ _test/ coverage/",
     "cover": "./tools/bin/cover.sh",
-    "lint": "eslint src/ packages/ index*.js --fix",
+    "lint": "eslint src/ packages/ index.html --fix",
     "lint-no-fix": "eslint src/ index*.js",
     "postinstall": "jspm install",
     "start": "python -m SimpleHTTPServer 8000",
+    "start:build": "cd dist && python -m SimpleHTTPServer 8000",
     "test": "./tools/bin/test.sh"
   },
   "pre-commit": [
@@ -93,8 +96,8 @@
     "url": "git+https://github.com/dinoboff/example-app.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Chris Boesch",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/dinoboff/example-app/issues"
   },

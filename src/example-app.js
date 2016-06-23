@@ -31,6 +31,9 @@ const module = angular.module('exampleApp', [
   'rxSubscribe'
 ]);
 
+export default module;
+export {module};
+
 //
 // Angular constants.
 //
@@ -112,5 +115,3 @@ module.config(['$routeProvider', function($routeProvider) {
 module.run(['$rootScope', function($rootScope) {
   ngRxSubscribe.extend(Rx.Observable, $rootScope);
 }]);
-
-export default module;

@@ -1,1 +1,2 @@
 extends: "./packages/eslint-config-singpath/module.js"
+plugins: ["html"]
