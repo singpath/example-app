@@ -4,7 +4,7 @@
 # 
 set -e
 
-SRC=./index.specs.js
+SRC=example-app/example-app.specs.js
 DIST=_test
 OUTPUT=${DIST}/test.js
 
