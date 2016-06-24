@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 #
+#
 # !!! Assumed to be run via a npm run command !!!
+# 
+# 		npm run build
 # 
 set -e
 

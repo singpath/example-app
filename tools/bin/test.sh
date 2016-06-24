@@ -2,6 +2,8 @@
 #
 # !!! Assumed to be run via a npm run command !!!
 # 
+# 		npm run test
+# 
 set -e
 
 SRC=example-app/example-app.specs.js
