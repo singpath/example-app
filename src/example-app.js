@@ -23,11 +23,16 @@ import {component as eaShoppingLists} from 'example-app/components/shopping-list
 // filters and services.
 //
 const module = angular.module('exampleApp', [
+
   // Add ngRoute directive and services.
   'ngRoute',
+
   // Add angular-rx-subscribe's "rxSubscribe" directive.
   'rxSubscribe'
 ]);
+
+export default module;
+export {module};
 
 //
 // Angular constants.
@@ -86,15 +91,12 @@ module.component('eaShoppingLists', eaShoppingLists);
 //
 module.config(['$routeProvider', function($routeProvider) {
   $routeProvider
-    .when('/', {
-      template: '<ea-shopping-lists></ea-shopping-lists>'
-    })
+    .when('/', {template: '<ea-shopping-lists></ea-shopping-lists>'})
     .when('/lists/:listId', {
       template: '<ea-shopping list-id="$resolve.params.listId"></ea-shopping">',
+
       // Adds `params` to the template $resolve scope object.
-      resolve: {
-        params: ['$route', $route => $route.current.params]
-      }
+      resolve: {params: ['$route', $route => $route.current.params]}
     })
     .otherwise('/');
 }]);
@@ -113,5 +115,3 @@ module.config(['$routeProvider', function($routeProvider) {
 module.run(['$rootScope', function($rootScope) {
   ngRxSubscribe.extend(Rx.Observable, $rootScope);
 }]);
-
-export default module;

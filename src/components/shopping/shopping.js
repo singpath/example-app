@@ -20,6 +20,7 @@ class ShoppingController {
    *
    * Triggered when this.listId is set or changed.
    *
+   * @param {Map<string, {currentValue: Object, previousValue: Object, isFirstChange: function}>} changes list
    */
   $onChanges(changes) {
     if (!changes.listId) {
@@ -39,7 +40,7 @@ class ShoppingController {
   /**
    * Add an item to the list and reset the newItem property.
    *
-   * @param {string} item
+   * @param {string} item item name.
    */
   add(item) {
     this.list.add(item);
@@ -49,7 +50,7 @@ class ShoppingController {
   /**
    * Remove the item from the list.
    *
-   * @param  {string} item
+   * @param {string} item item name.
    */
   remove(item) {
     this.list.remove(item);
@@ -62,8 +63,6 @@ ShoppingController.$inject = ['eaLists'];
 
 export const component = {
   template,
-  bindings: {
-    listId: '<'
-  },
+  bindings: {listId: '<'},
   controller: ShoppingController
 };

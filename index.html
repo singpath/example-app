@@ -12,11 +12,33 @@
     <script src="jspm.config.js"></script>
 
 		<script>
-      System.import(
-        './index.js'
-      ).catch(
+      /* eslint-env browser */
+      /* eslint 
+        no-multiple-empty-lines: 'off',
+        no-console: 'off',
+        no-trailing-spaces: 'off',
+        eol-last: 'off'
+      */
+     
+      Promise.all([
+        System.import('angular'),
+        System.import('example-app')
+      ]).then(modules => {
+        const angular = modules[0];
+        const exampleApp = modules[1];
+        const module = angular.module('exampleApp.bootstrap', [exampleApp.module.name]);
+
+        // Overwrite constant here; e.g.:
+        //
+        // module.constant('firebaseApp', firebase.initializeApp([...]));
+
+        angular.element(document).ready(function() {
+          angular.bootstrap(document, [module.name], {strictDi: true});
+        });
+      }).catch(
         console.error.bind(console)
       );
+
 		</script>
   
   </body>

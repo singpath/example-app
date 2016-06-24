@@ -1,6 +1,5 @@
 import sinon from 'sinon';
-import {expect} from 'chai';
-import {testInjectMatch} from 'example-app/tools/inspect.js';
+import {expect, testInjectMatch} from 'example-app/tools/chai.js';
 
 import {component} from './shopping-lists.js';
 
@@ -10,6 +9,7 @@ describe('eaShoppingList component', function() {
     let ctrl, shoppingListsService, lists;
 
     beforeEach(function() {
+
       // The lists our service will provide.
       lists = [];
 
@@ -27,7 +27,7 @@ describe('eaShoppingList component', function() {
     testInjectMatch(component.controller);
 
     it('should load the list of shopping list.', function() {
-      expect(shoppingListsService.all).to.have.been.calledOnce;
+      expect(shoppingListsService.all).to.have.been.calledOnce();
       expect(ctrl.lists).to.equal(lists);
     });
 
@@ -35,7 +35,7 @@ describe('eaShoppingList component', function() {
 
       it('should create a new list', function() {
         ctrl.add('grocery');
-        expect(shoppingListsService.create).to.have.been.calledOnce;
+        expect(shoppingListsService.create).to.have.been.calledOnce();
         expect(shoppingListsService.create).to.have.been.calledWith('grocery');
       });
 
@@ -50,7 +50,7 @@ describe('eaShoppingList component', function() {
 
       it('should remote a list', function() {
         ctrl.remove('grocery');
-        expect(shoppingListsService.remove).to.have.been.calledOnce;
+        expect(shoppingListsService.remove).to.have.been.calledOnce();
         expect(shoppingListsService.remove).to.have.been.calledWith('grocery');
       });
 

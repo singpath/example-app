@@ -1,15 +1,7 @@
 /**
  * Example-app test entry point - import all tests.
  */
-import * as chai from 'chai';
-import sinonChai from 'sinon-chai';
-
-// Register sinonChai plugin
-//
-// See https://github.com/domenic/sinon-chai
-chai.use(sinonChai);
-
-import 'example-app/tools/inspect.specs.js';
+import 'example-app/tools/chai.specs.js';
 
 import 'example-app/services.specs.js';
 

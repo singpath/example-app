@@ -1,0 +1,30 @@
+{
+  "name": "@singpath/example-app",
+  "version": "0.0.0",
+  "description": "Example of Angular development using JSPM.",
+  "main": "example-app.js",
+  "registry": "npm",
+  "peerDependencies": {
+    "angular": "^1.5.6",
+    "angular-route": "^1.5.6",
+    "firebase": "^3.0.0",
+    "rxjs": "^5.0.0-beta.8"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "example-app.js",
+    "example-app.min.js",
+    "index.html"
+  ],
+  "jspmPackage": true,
+  "format": "amd",
+  "keywords": [
+    "Singpath",
+    "Angular",
+    "Firebase",
+    "RxJS"
+  ],
+  "author": "",
+  "license": "MIT"
+}

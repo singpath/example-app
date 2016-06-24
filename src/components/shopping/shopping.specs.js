@@ -1,6 +1,4 @@
-import sinon from 'sinon';
-import {expect} from 'chai';
-import {testInjectMatch} from 'example-app/tools/inspect.js';
+import {expect, sinon, testInjectMatch} from 'example-app/tools/chai.js';
 import Rx from 'example-app/tools/rx.js';
 
 import {component} from './shopping.js';
@@ -11,6 +9,7 @@ describe('eaShopping component', function() {
     let ctrl, shoppingListsService, list, shopping;
 
     beforeEach(function() {
+
       // The shopping list Observable our service will provide.
       shopping = new Rx.Subject();
       list = {
@@ -43,7 +42,7 @@ describe('eaShopping component', function() {
 
       it('should add a new item', function() {
         ctrl.add('bread');
-        expect(list.add).to.have.been.calledOnce;
+        expect(list.add).to.have.been.calledOnce();
         expect(list.add).to.have.been.calledWith('bread');
       });
 
@@ -53,7 +52,7 @@ describe('eaShopping component', function() {
 
       it('should remove a new list', function() {
         ctrl.remove('bread');
-        expect(list.remove).to.have.been.calledOnce;
+        expect(list.remove).to.have.been.calledOnce();
         expect(list.remove).to.have.been.calledWith('bread');
       });
 

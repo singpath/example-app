@@ -1,9 +1,7 @@
 /* eslint max-nested-callbacks: "off"*/
 
 import Rx from 'example-app/tools/rx.js';
-import sinon from 'sinon';
-import {expect} from 'chai';
-import {testInjectMatch} from 'example-app/tools/inspect.js';
+import {expect, sinon, testInjectMatch} from 'example-app/tools/chai.js';
 
 import * as services from './services.js';
 
@@ -19,9 +17,7 @@ describe('services', function() {
         signInAnonymously: sinon.stub().returns(Promise.resolve({uid: 'alice'})),
         signOut: sinon.stub().returns(Promise.resolve())
       };
-      db = {
-        ref: sinon.stub()
-      };
+      db = {ref: sinon.stub()};
       firebaseApp = {
         auth: sinon.stub().returns(auth),
         database: sinon.stub().returns(db)
@@ -32,7 +28,7 @@ describe('services', function() {
     describe('auth', function() {
 
       it('should observe auth', function() {
-        const promise = user.auth().take(1).toPromise();
+        const promise = user.auth().first().toPromise();
         const state = {uid: 'someId'};
 
         authState.next(state);
@@ -42,6 +38,7 @@ describe('services', function() {
 
       it('should only emit distinct values', function() {
         const promise = user.auth().toArray().toPromise();
+        const count = 4;
 
         authState.next(null);
         authState.next(null); // should drop this one
@@ -52,7 +49,7 @@ describe('services', function() {
         authState.complete();
         user.destroy();
 
-        return promise.then(states => expect(states).to.have.length(4));
+        return promise.then(states => expect(states).to.have.length(count));
       });
 
     });
@@ -71,16 +68,16 @@ describe('services', function() {
 
       it('should sign user out', function() {
         return user.signOut().then(
-          () => expect(auth.signOut).to.have.been.calledOnce
+          () => expect(auth.signOut).to.have.been.calledOnce()
         );
       });
 
       it('should signal signing out before signing out', function() {
-        const signal = user.auth().take(1).toPromise();
+        const signal = user.auth().first().toPromise();
         const signingOut = user.signOut();
 
         return signal.then(() => {
-          expect(auth.signOut).to.not.have.been.called;
+          expect(auth.signOut).to.not.have.been.called();
 
           return signingOut;
         });
@@ -91,23 +88,23 @@ describe('services', function() {
     describe('get', function() {
 
       it('should fetch the user registration info', function() {
-        const promise = user.get().take(3).toArray().toPromise();
+        const registeredAt = 12345;
+        const userStats = 3;
+        const promise = user.get().take(userStats).toArray().toPromise();
         const registration = new Rx.Subject();
-        const ref = {
-          observe: sinon.stub().withArgs('value').returns(registration)
-        };
+        const ref = {observe: sinon.stub().withArgs('value').returns(registration)};
 
         db.ref.withArgs('/users/bob').returns(ref);
 
         authState.next(null);
         authState.next({uid: 'bob'});
-        registration.next({registeredAt: 12345});
+        registration.next({registeredAt});
         authState.next(null);
 
         return promise.then(values => {
-          expect(values).to.have.length(3);
+          expect(values).to.have.length(userStats);
           expect(values[0]).to.equal(undefined);
-          expect(values[1].registeredAt).to.equal(12345);
+          expect(values[1].registeredAt).to.equal(registeredAt);
           expect(values[2]).to.equal(undefined);
         });
       });
@@ -123,9 +120,7 @@ describe('services', function() {
       });
 
       it('should return the current user id', function() {
-        auth.currentUser = {
-          uid: 'bob'
-        };
+        auth.currentUser = {uid: 'bob'};
 
         return user.uid().then(uid => expect(uid).to.equal('bob'));
       });
@@ -135,25 +130,19 @@ describe('services', function() {
     describe('register', function() {
 
       it('should register the user', function() {
-        const ref = {
-          set: sinon.stub().returns(Promise.resolve())
-        };
+        const ref = {set: sinon.stub().returns(Promise.resolve())};
 
         db.ref.withArgs('/users/alice').returns(ref);
 
         return user.register().then(() => {
-          expect(ref.set).to.have.been.calledOnce;
-          expect(ref.set).to.have.been.calledWithExactly({
-            registeredAt: {'.sv': 'timestamp'}
-          });
+          expect(ref.set).to.have.been.calledOnce();
+          expect(ref.set).to.have.been.calledWithExactly({registeredAt: {'.sv': 'timestamp'}});
         });
       });
 
       it('should reject if registration failed', function() {
         const err = new Error();
-        const ref = {
-          set: sinon.stub().returns(Promise.reject(err))
-        };
+        const ref = {set: sinon.stub().returns(Promise.reject(err))};
 
         db.ref.withArgs('/users/alice').returns(ref);
 
@@ -172,9 +161,7 @@ describe('services', function() {
 
     beforeEach(function() {
       db = {};
-      firebaseApp = {
-        database: sinon.stub().returns(db)
-      };
+      firebaseApp = {database: sinon.stub().returns(db)};
       listsService = new services.Lists(firebaseApp);
     });
 
@@ -189,23 +176,18 @@ describe('services', function() {
 
       beforeEach(function() {
         registration = new Rx.Subject();
-        listsService.user = {
-          get: sinon.stub().returns(registration)
-        };
+        listsService.user = {get: sinon.stub().returns(registration)};
       });
 
       it('should query a registered user list of shopping list', function() {
         const lists = new Rx.Subject();
-        const query = {
-          observeChildren: sinon.stub().returns(lists)
-        };
-        const ref = {
-          orderByKey: sinon.stub().returns(query)
-        };
+        const listsStats = 4;
+        const query = {observeChildren: sinon.stub().returns(lists)};
+        const ref = {orderByKey: sinon.stub().returns(query)};
 
         db.ref = sinon.stub().withArgs('/lists/bob').returns(ref);
 
-        const promise = listsService.all().take(4).toArray().toPromise();
+        const promise = listsService.all().take(listsStats).toArray().toPromise();
 
         registration.next(null);
         registration.next({
@@ -231,9 +213,7 @@ describe('services', function() {
     describe('exists', function() {
 
       beforeEach(function() {
-        listsService.user = {
-          uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))
-        };
+        listsService.user = {uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))};
       });
 
       it('should resolve to true if the list exists', function() {
@@ -247,7 +227,7 @@ describe('services', function() {
 
         return listsService.exists('grocery').then(exists => {
           expect(exists).to.equal(true);
-          expect(ref.once).to.have.been.calledOnce;
+          expect(ref.once).to.have.been.calledOnce();
         });
       });
 
@@ -262,7 +242,7 @@ describe('services', function() {
 
         return listsService.exists('grocery').then(exists => {
           expect(exists).to.equal(false);
-          expect(ref.once).to.have.been.calledOnce;
+          expect(ref.once).to.have.been.calledOnce();
         });
       });
 
@@ -271,9 +251,7 @@ describe('services', function() {
     describe('create', function() {
 
       beforeEach(function() {
-        listsService.user = {
-          uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))
-        };
+        listsService.user = {uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))};
       });
 
       it('should create a list', function() {
@@ -286,7 +264,7 @@ describe('services', function() {
         db.ref = sinon.stub().withArgs('/lists/bob/grocery').returns(ref);
 
         return listsService.create('grocery').then(
-          () => expect(ref.set).to.have.been.calledOnce
+          () => expect(ref.set).to.have.been.calledOnce()
         );
       });
 
@@ -295,9 +273,7 @@ describe('services', function() {
     describe('remove', function() {
 
       beforeEach(function() {
-        listsService.user = {
-          uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))
-        };
+        listsService.user = {uid: sinon.stub().returns(Promise.resolve({uid: 'bob'}))};
       });
 
       it('should remove a list', function() {
@@ -313,7 +289,7 @@ describe('services', function() {
         db.ref = sinon.stub().withArgs('/lists/bob/grocery').returns(ref);
 
         return listsService.remove('grocery').then(
-          () => expect(ref.update).to.have.been.calledOnce
+          () => expect(ref.update).to.have.been.calledOnce()
         );
       });
 
@@ -325,13 +301,9 @@ describe('services', function() {
     let shopping, lists, db;
 
     beforeEach(function() {
-      db = {
-        ref: sinon.stub()
-      };
+      db = {ref: sinon.stub()};
       lists = {
-        _firebaseApp: {
-          database: sinon.stub().returns(db)
-        },
+        firebaseApp: {database: sinon.stub().returns(db)},
         user: {}
       };
       shopping = new services.ShoppingList('grocery', lists);
@@ -345,19 +317,15 @@ describe('services', function() {
       let registration, listRef, listInfo, itemsRef, itemsQuery, items;
 
       beforeEach(function() {
-        registration = new Rx.ReplaySubject(2);
-        listInfo = new Rx.ReplaySubject(2);
-        items = new Rx.ReplaySubject(2);
+        const bufferSize = 2;
 
-        listRef = {
-          observe: sinon.stub().withArgs('value').returns(listInfo)
-        };
-        itemsQuery = {
-          observeChildren: sinon.stub().returns(items)
-        };
-        itemsRef = {
-          orderByKey: sinon.stub().returns(itemsQuery)
-        };
+        registration = new Rx.ReplaySubject(bufferSize);
+        listInfo = new Rx.ReplaySubject(bufferSize);
+        items = new Rx.ReplaySubject(bufferSize);
+
+        listRef = {observe: sinon.stub().withArgs('value').returns(listInfo)};
+        itemsQuery = {observeChildren: sinon.stub().returns(items)};
+        itemsRef = {orderByKey: sinon.stub().returns(itemsQuery)};
 
         db.ref.withArgs('/lists/bob/grocery').returns(listRef);
         db.ref.withArgs('/listItems/bob/grocery').returns(itemsRef);
@@ -368,10 +336,13 @@ describe('services', function() {
       });
 
       it('should observe items', function() {
-        const promise = shopping.items().take(3).toArray().toPromise();
+        const itemsStats = 3;
+        const promise = shopping.items().take(itemsStats).toArray().toPromise();
 
         registration.next(null);
-        registration.next({registeredAt: 1234, $key: 'bob'});
+        registration.next({
+          registeredAt: 1234, $key: 'bob'
+        });
         listInfo.next({createdAt: 1234});
         items.next(['bread']);
         items.next(['bread', 'eggs']);
@@ -403,7 +374,7 @@ describe('services', function() {
         db.ref.withArgs('/listItems/bob/grocery/bread').returns(ref);
 
         return shopping.add('bread').then(
-          () => expect(ref.set).to.have.been.calledOnce
+          () => expect(ref.set).to.have.been.calledOnce()
         );
       });
 
@@ -416,14 +387,12 @@ describe('services', function() {
       });
 
       it('should remove an item from the list', function() {
-        const ref = {
-          remove: sinon.stub().returns(Promise.resolve())
-        };
+        const ref = {remove: sinon.stub().returns(Promise.resolve())};
 
         db.ref.withArgs('/listItems/bob/grocery/bread').returns(ref);
 
         return shopping.remove('bread').then(
-          () => expect(ref.remove).to.have.been.calledOnce
+          () => expect(ref.remove).to.have.been.calledOnce()
         );
       });
 

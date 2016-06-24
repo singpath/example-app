@@ -2,6 +2,8 @@
 #
 # !!! Assumed to be run via a npm run command !!!
 # 
+# 		npm run cover
+# 
 set -e
 
 SRC=./index.specs.js

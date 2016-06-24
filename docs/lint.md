@@ -8,15 +8,16 @@ npm run lint
 
 ## setup
 
-Install `eslint`, a set of default rules (`eslint-config-xo`) and an ES6 plugin.
+Install `eslint` and the set of default rules (`eslint-config-singpath`)
+and a plugin to handle html files:
 ```shell
-npm install --save-dev eslint eslint-config-xo
-npm install --save-dev babel-eslint eslint-plugin-babel
+npm install --save-dev eslint eslint-plugin-html eslint-config-singpath
 ```
 
 Setup a YAML or JSON encoded eslint config file:
 ```shell
-echo "extends: xo/esnext" > .eslintrc.yml
+rm .eslintrc*
+echo -e 'extends: singpath/module\nplugins: ["html"]' > .eslintrc.yml
 ```
 
 To run lint, add a lint command to `package.json` (add it to the map of command
@@ -24,7 +25,7 @@ in the `scripts` object):
 ```json
 {
   "scripts": {
-    "lint": "eslint src/ index*.js",
+    "lint": "eslint src/ index.html",
     "test": "./tools/bin/test.sh"
   }
 }
@@ -35,15 +36,22 @@ Then:
 npm run lint
 ```
 
+To auto fix most formatting issue:
+```shell
+npm run lint -- --fix
+```
+
+
 ## Rules
 
-With the default rules and this project at this stage, it would show 369 errors;
-e.g.:
+Using an other set of rules (eslint-config-xo), this project would show
+369 errors; e.g.:
 
     /Users/me/dev/example-app/index.js
     16:33  error  Unexpected function expression                       prefer-arrow-callback
     16:41  error  Missing space before function parentheses            space-before-function-paren
     17:3   error  Expected indentation of 1 tab character but found 0  indent
+
 
 Notice the last column; it shows an error code which can be looked up on eslint
 documentation:
@@ -52,8 +60,10 @@ documentation:
     http://eslint.org/docs/rules/space-before-function-paren
     http://eslint.org/docs/rules/indent
 
-You can then adjust the rules settings to your coding style; `.eslintrc.yml`:
+
+You can adjust the default rules settings to your coding style; `.eslintrc.yml`:
 ```yml
+# using "xo/esnext" as an example. You should use "singpath/module"
 extends: xo/esnext
 rules:
   prefer-arrow-callback: "off"
@@ -65,11 +75,11 @@ rules:
     - "never"
 ```
 
-Rules can be set "off", "warn" (shows warning but doesn't fail) or "error".
+Rules can be set to "off", "warn" (shows warning but doesn't fail) or "error".
 Some rules can be configured: indent should be 2 spaces. The rule definition
-explains how to config it.
+explains how to configure it.
 
-After those adjustments we are down to 87, with many "no-undef" errors, e.g.:
+After those changes it would be down to 87, with many "no-undef" errors, e.g.:
 
     /Users/me/dev/example-app/src/tools/inspect.specs.js
      5:1   error  'describe' is not defined                no-undef
@@ -92,9 +102,6 @@ rules:
     - "never"
 ```
 
-Down to 44 error. Check [.eslintrc.yml](../.eslintrc.yml) for the final set of
-rules.
-
 Once the rules are stable, you can change the the lint command to:
 ```json
 {
@@ -112,7 +119,7 @@ Once the rules are stable, you can change the the lint command to:
 
 ## Rule exceptions
 
-You sometime need to turn off a rules for just one instance. E.g. `index.js` is
+You sometime need to turn off a rules for just one instance. E.g. `index.html` is
 exclusively run in the browser and need to access `document`. The error can be
 disable with those comments:
 ```js
@@ -129,9 +136,42 @@ Or by disabling the rules:
 /* eslint no-undef: "off" */
 ```
 
+
+## Precommit hook
+
+Install `pre-commit`:
+```
+npm install pre-commit --save-dev
+```
+
+Update `package.json` with:
+```json
+{
+  "pre-commit": [ "lint-no-fix" ]
+}
+```
+
+
+## Sharing configs
+
+`eslint-config-singpath` is currently defined in this repository, in
+`packages/eslint-config-singpath`. The rules are defined in `default.yml`.
+Specific node or jspm settings are defined in `node.js` and `module.js`.
+
+`default.yml` has each rule commented, included if it's recommended by eslint
+and if it's fixable (using `--fix` CLI option).
+
+To publish it:
+```
+cd packages/eslint-config-singpath
+npm version (patch|minor|major)
+npm publish
+```
+
+(This example app uses the local version, not the published one)
+
+
 ## Reference
 
 - [eslint](http://eslint.org/)
 - [eslint-config-xo](https://github.com/sindresorhus/eslint-config-xo)
-- [eslint-plugin-babel](https://github.com/babel/eslint-plugin-babel) (include
-extra rule definitions - starting by "babel/")

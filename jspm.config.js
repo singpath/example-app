@@ -5,7 +5,56 @@ SystemJS.config({
     "example-app/": "src/"
   },
   browserConfig: {
-    "baseURL": "/"
+    "baseURL": "/",
+    "depCache": {
+      "example-app/components/example-app/example-app.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./example-app.html!text",
+        "./example-app.css!"
+      ],
+      "example-app/components/shopping-lists/shopping-lists.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./shopping-lists.html!text"
+      ],
+      "example-app/components/shopping/shopping.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "./shopping.html!text"
+      ],
+      "example-app/example-app.js": [
+        "angular",
+        "firebase",
+        "example-app/tools/rx.js",
+        "angular-rx-subscribe",
+        "rx-firebase",
+        "angular-route",
+        "example-app/services.js",
+        "example-app/components/example-app/example-app.js",
+        "example-app/components/shopping/shopping.js",
+        "example-app/components/shopping-lists/shopping-lists.js"
+      ],
+      "example-app/services.js": [
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/defineProperty.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/classCallCheck.js",
+        "npm:systemjs-plugin-babel@0.0.12/babel-helpers/createClass.js",
+        "example-app/tools/rx.js"
+      ],
+      "example-app/tools/rx.js": [
+        "rxjs/bundles/Rx.umd.js"
+      ],
+      "github:angular/bower-angular-route@1.5.6/angular-route.js": [
+        "angular"
+      ],
+      "index.js": [
+        "angular",
+        "example-app"
+      ],
+      "npm:angular-rx-subscribe@0.2.5/angular-rx-subscribe.js": [
+        "angular"
+      ]
+    }
   },
   devConfig: {
     "map": {
@@ -38,6 +87,7 @@ SystemJS.config({
     "buffer": "github:jspm/nodelibs-buffer@0.2.0-alpha",
     "chai": "npm:chai@3.5.0",
     "css": "github:systemjs/plugin-css@0.1.22",
+    "dirty-chai": "npm:dirty-chai@1.2.2",
     "firebase": "github:firebase/firebase-bower@3.0.5",
     "get-parameter-names": "npm:get-parameter-names@0.3.0",
     "process": "github:jspm/nodelibs-process@0.2.0-alpha",
@@ -86,7 +136,7 @@ SystemJS.config({
     },
     "npm:chai@3.5.0": {
       "map": {
-        "assertion-error": "npm:assertion-error@1.0.1",
+        "assertion-error": "npm:assertion-error@1.0.2",
         "type-detect": "npm:type-detect@1.0.0",
         "deep-eql": "npm:deep-eql@0.1.3"
       }

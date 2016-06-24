@@ -2,9 +2,11 @@
 #
 # !!! Assumed to be run via a npm run command !!!
 # 
+# 		npm run test
+# 
 set -e
 
-SRC=./index.specs.js
+SRC=example-app/example-app.specs.js
 DIST=_test
 OUTPUT=${DIST}/test.js
 
