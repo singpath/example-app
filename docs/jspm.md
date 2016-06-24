@@ -181,7 +181,8 @@ Loading and trans-coding modules happens in the browser. You need to include
 
 ## Production build
 
-The build command is `jspm build [main module] [output script]`:
+For production, the app files needs to be grouped together and transcode. JSPM's
+build command is `jspm build [main module] [output script]`:
 ```
 mkdir -p dist/
 jspm build /some/entry/point.js ./dist/my-project.js --minify --skip-source-maps
@@ -204,7 +205,32 @@ The return script is self contain and can be used directly:
 By default it will create a [UMD](https://github.com/umdjs/umd) bundle and
 transcode the code to ES5.
 
-It can be tweaked to not include dependencies (to load from external servers):
+
+### Analyzing bundle size
+
+A bundle can easily exceed 1mb. It would be handy to know the weight of each
+dependency to know which one should be pruned or slimed down.
+
+Thankfully, JSPM bundles are created with a source-map. We can use those source
+map and [source-map-explorer] to analyze the weight of each module:
+```shell
+npm install source-map-explorer --save-dev
+jspm build /some/entry/point.js ./dist/my-project.js --minify
+./node_modules/.bin/source-map-explorer ./dist/my-project.js
+```
+
+It will open in the browser a tree showing the dependency tree (sorted by path)
+and the weight of each dependency.
+
+(the build script create the dependency tree html file but does not open it).
+
+
+### Loading external dependencies
+
+The bundle can be tweaked to not include some dependencies; the html page will
+have to load those first before loading the bundle.
+
+To build an angular-less bundle:
 ```
 jspm build example-app - angular \
   --global-name exampleApp \
@@ -216,6 +242,21 @@ jspm build example-app - angular \
 dependency to angular. "--global-name" defines the global variable the
 "example-app" will be set to. "--global-deps" defines which global variable to
 seek to find the missing modules.
+
+To load angular from a CDN:
+```
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example</title>
+  </head>
+  <body>
+    [...]
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.6/angular.min.js"></script>
+    <script src="/dist/my-project.js"></script>
+  </body>
+</html>
+```
 
 See [tools/bin/build.sh](./tools/bin/build.sh) for more details.
 
@@ -246,3 +287,6 @@ during developement to run in the browser.
 - [JSPM v0.17 Guide](http://jspm.io/0.17-beta-guide/)
 - [SystemJS](https://github.com/systemjs/systemjs)
 - [ES6 module](http://exploringjs.com/es6/ch_modules.html)
+
+
+[source-map-explorer]: https://www.npmjs.com/package/source-map-explorer
