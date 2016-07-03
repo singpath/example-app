@@ -87,12 +87,12 @@ View:
 
 ## Controllers
 
-Controllers are used as bridges between views and models, and augment a scope
-with values and function. They can either receive the scope to manipulate it or
-an instance of the controller can be assign to a scope property (`$ctrl` by
-default for component controllers). We will use the later strategy. It shows
-explicitly where a value comes from and avoid errors associated with
-prototypical inheritance.
+Controllers augment a scope with values and function (usually to as event
+handlers). They are mainly used as bridges between views and models. They can
+either receive the scope to manipulate it, or an instance of the controller can
+be assign to a scope property (`$ctrl` by default for component controllers).
+We will use the later strategy. It shows explicitly where a value comes from and
+avoid errors associated with prototypical inheritance.
 
 Controllers can be used in various way. We will mainly use them as
 component/directive controller.
