@@ -383,9 +383,12 @@ export class ShoppingList {
       const uid = user && user.$key;
 
       if (!uid || user.$value === null) {
+        // we return an observable because switchMap expect an observable to flatten
         return Rx.Observable.of(undefined);
       }
 
+      // return an observable that emit the details each time it changes;
+      // switchMap will flatten it and emit the details.
       return this.db.ref(`/listItems/${uid}/${this.name}/${item}`).observe('value');
     });
   }
