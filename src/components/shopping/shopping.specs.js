@@ -19,11 +19,7 @@ describe('eaShopping component', function() {
       };
 
       // The lists service stub
-      shoppingListsService = {
-        shoppingList: sinon.stub().withArgs('grocery').returns(list),
-        createItem: sinon.spy(),
-        removeItem: sinon.spy()
-      };
+      shoppingListsService = {shoppingList: sinon.stub().withArgs('grocery').returns(list)};
 
       // The controller, instanciated with its dependencies.
       ctrl = new component.controller(shoppingListsService);

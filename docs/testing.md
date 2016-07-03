@@ -130,11 +130,12 @@ package.json (show only relevent fields):
   "scripts": {
     "clean": "rm -rf _test/",
     "postinstall": "jspm install",
-    "start": "python -m SimpleHTTPServer 8000",
+    "start": "http-server -c-1 -p 8000",
     "test": "./tools/bin/test.sh"
   },
   "devDependencies": {
     "jspm": "^0.17.0-beta.17",
+    "http-server": "^0.9.0",
     "mocha": "^2.5.3",
     "source-map-support": "^0.4.0"
   }

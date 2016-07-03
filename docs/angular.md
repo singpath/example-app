@@ -87,12 +87,12 @@ View:
 
 ## Controllers
 
-Controllers are used as bridges between views and models, and augment a scope
-with values and function. They can either receive the scope to manipulate it or
-an instance of the controller can be assign to a scope property (`$ctrl` by
-default for component controllers). We will use the later strategy. It shows
-explicitly where a value comes from and avoid errors associated with
-prototypical inheritance.
+Controllers augment a scope with values and function (usually to as event
+handlers). They are mainly used as bridges between views and models. They can
+either receive the scope to manipulate it, or an instance of the controller can
+be assign to a scope property (`$ctrl` by default for component controllers).
+We will use the later strategy. It shows explicitly where a value comes from and
+avoid errors associated with prototypical inheritance.
 
 Controllers can be used in various way. We will mainly use them as
 component/directive controller.
@@ -266,7 +266,7 @@ directory might contain templates, css files and and mocha tests.
 
 ### Navigation
 
-In this example, we will add view to show when a shopping item has been added.
+In this example, we will add a view to show when a shopping item has been added.
 
 
 #### 1. first define how to access the view
@@ -383,9 +383,12 @@ export class ShoppingList {
       const uid = user && user.$key;
 
       if (!uid || user.$value === null) {
+        // we return an observable because switchMap expect an observable to flatten
         return Rx.Observable.of(undefined);
       }
 
+      // return an observable that emit the details each time it changes;
+      // switchMap will flatten it and emit the details.
       return this.db.ref(`/listItems/${uid}/${this.name}/${item}`).observe('value');
     });
   }
