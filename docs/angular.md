@@ -22,7 +22,7 @@ which inherit its parent element scope.
 
 ## Modules
 
-Module are registry of directives, services and filter. A module can inherite
+Modules are registry of directives, services and filters. A module can inherite
 those from other modules; e.g., to require "ngRoute" directives and services:
 ```js
 const module = angular.module('myModule', ['ngRoute']);
@@ -59,7 +59,7 @@ angular.element(document).ready(function() {
 
 ## Directives
 
-Directives associate some routine to a DOM elements or attributes. It can use
+Directives associate some routine to DOM elements or attributes. It can be used
 to fill an element with some content or to bridge some library with an angular
 application.
 
@@ -140,7 +140,7 @@ View:
 
 ## Services
 
-Services are singleton object which can be provided to injectable function,
+Services are singleton objects which can be provided to injectable function,
 mainly, other service constructors/factories, filter factories, controllers and
 route resolvers.
 
@@ -161,7 +161,7 @@ TODO:
 ## Component tree
 
 We are building this example application using a component tree.
-we define a root component "app"; it define the general layout and use
+we create a root component "app"; it defines the general layout and use
 ngRoute's "ngView" directive to dynamically display children components.
 
 We then configure ngRoute to display different component depending of URL
@@ -241,8 +241,8 @@ pattern.
 
 ## Structure
 
-By using JSPM default structures, the <project-name> code should be hosted in
-"src/" and its main module should be "src/<project-name>.js", in our case
+By using JSPM default structures, the &lt;project-name> code should be hosted in
+"src/" and its main module should be "src/&lt;project-name>.js", in our case
 "src/example-app.js".
 
 It export an Angular module and includes all angular API calls. "*.specs.js"
@@ -250,17 +250,16 @@ files include mocha tests. Other ".js" files export plain JS objects; they will
 be imported by the "src/example-app.js" to build the Angular app or by mocha
 tests.
 
-"src/services.js" includes our shared services and mainly our data-store
-service. For a bigger applications, the services would be split other multiple
+"src/services.js" includes our shared services, mainly our data-store
+service. For a bigger applications, the services would be split over multiple
 "services/*.js" files.
 
-If we were to defined shared filters, we would define them in
-"src/filters.js". Shared directive (like form validation directive) would go in
+If we were to define shared filters, we would define them in
+"src/filters.js". Shared directives (like form validation directive) would go in
 "src/directives.js".
 
-"component/<component-name>/<component-name>.js" defines component. A
-"component/<component-name>/" might contain templates, css files and and mocha
-tests.
+"component/&lt;component-name>/&lt;component-name>.js" defines a component. The
+directory might contain templates, css files and and mocha tests.
 
 
 ## How To
@@ -283,12 +282,12 @@ add the link to our future view:
 ```
 
 Hovering on the link should show the proper link. Clicking it should sent to the
-home page, for now.
+home page, for now, while "ngRoute" is missing the new route configuration.
 
 
 #### 2. setting the new route
 
-In "src/example-app.js", find routes configuration. It should look like:
+In "src/example-app.js", find the routes configuration. It should look like:
 ```js
 module.config(['$routeProvider', function($routeProvider) {
   $routeProvider
@@ -325,11 +324,11 @@ module.config(['$routeProvider', function($routeProvider) {
 Reload the page (you might have to clear your cache), when clicking on an item
 info link, the main view should now show "Failing to load item info".
 
-To shows the "ea-shopping-item" inner text because this tag name is not
+It shows the "ea-shopping-item" inner text because this tag name is not
 associated to a directive/component yet.
 
 
-#### 3. Add new services operation
+#### 3. Add a new services operation
 
 We need to update our model to retrieve an item details.
 
@@ -343,8 +342,8 @@ module.service('eaLists', services.Lists);
 ```
 
 Locate the `List` class in "src/example.js" and the `List.shoppingList(name)`
-method; It returns an instance of `ShoppingList` which current models retrieving
-a list of items and updating the list.
+method; It returns an instance of `ShoppingList` which currently models
+retrieving a list of items and updating the list.
 
 Locate `ShoppingList` and define a new method to retrieve the details of one
 item:
@@ -395,7 +394,7 @@ export class ShoppingList {
 ```
 
 While implementing the method, you should define some tests. See,
-["src/example-app.specs.js"](../src/example-app.specs.js) and
+["src/services.specs.js"](../src/services.specs.js) and
 `describe('itemDetails', function() {[...]})` for more details.
 
 
@@ -419,7 +418,7 @@ Implement the component options in
 class ShoppingItemController {
 
   /**
-   * Receive dependencies and initiate (set zero value).
+   * Receive dependencies and initiate properties (set zero value).
    *
    * @param  {List} eaLists List service
    */
@@ -498,6 +497,11 @@ You could write it in a html file instead and import it (e.g.
 While implementing the controller, you should write tests for the controller.
 See [src/components/shopping-item/shopping-item.specs.js](../src/components/shopping-item/shopping-item.specs.js)
 for more details.
+
+Import the new tests in the in src/example-app.specs.js:
+```js
+import 'example-app/components/shopping-item/shopping-item.specs.js';
+```
 
 
 #### 5. Register the component
