@@ -356,6 +356,30 @@ export class ShoppingList {
     );
   }
 
+  /**
+   * Return an observable monitoring the details of an item.
+   *
+   * While the user is not logged in or nor registered, it emits undefined.
+   *
+   * If the item doesn't exist, it emit an object with $value set to null.
+   *
+   * @param  {string}              item item name.
+   * @return {Observable<?Object>}
+   */
+  itemDetails(item) {
+
+    // observe user registration details.
+    return this.user.get().switchMap(user => {
+      const uid = user && user.$key;
+
+      if (!uid || user.$value === null) {
+        return Rx.Observable.of(undefined);
+      }
+
+      return this.db.ref(`/listItems/${uid}/${this.name}/${item}`).observe('value');
+    });
+  }
+
 }
 
 /**

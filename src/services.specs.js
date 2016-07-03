@@ -398,6 +398,56 @@ describe('services', function() {
 
     });
 
+    describe('itemDetails', function() {
+      let user;
+
+      beforeEach(function() {
+
+        // Mock user auth and registration changes observable.
+        user = new Rx.Subject();
+        lists.user.get = sinon.stub().returns(user);
+      });
+
+      it('should emit undefined if the user is not logged in', function() {
+        const userChanges = 2;
+        const detailsChanges = shopping.itemDetails('bread');
+        const promise = detailsChanges.take(userChanges).toArray().toPromise();
+
+        // user logged off
+        user.next(undefined);
+
+        // user logged on but not registered to the app.
+        user.next({$value: null});
+
+        // detailsChanges should emit undefined twice since each time
+        // the current user is not registered and cannot have a list.
+        return promise.then(
+          nextValues => expect(nextValues).to.eql([undefined, undefined])
+        );
+      });
+
+      it('should observe an item details', function() {
+        const details = new Rx.Subject();
+        const ref = {observe: sinon.stub().withArgs('value').returns(details)};
+
+        db.ref.withArgs('/listItems/bob/grocery/bread').returns(ref);
+
+        const itemChanges = 1;
+        const detailsChanges = shopping.itemDetails('bread');
+        const promise = detailsChanges.take(itemChanges).toPromise();
+
+        // user is registered
+        user.next({$key: 'bob'});
+
+        // initial item details
+        details.next({createdAt: 1234});
+
+        return promise.then(
+          data => expect(data).to.eql({createdAt: 1234})
+        );
+      });
+    });
+
   });
 
 });

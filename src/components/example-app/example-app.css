@@ -17,6 +17,15 @@ example-app {
   margin: 5px 0;
 }
 
+.list .item > * {
+  margin: 0 0 0 10px;
+  padding: 0 5px;
+}
+
+.list .item > :first-child {
+  margin: 0;
+}
+
 .main-item {
   flex-grow: 1;
 }

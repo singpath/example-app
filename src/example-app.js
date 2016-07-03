@@ -15,6 +15,8 @@ import * as services from 'example-app/services.js';
 import {component as exampleApp} from 'example-app/components/example-app/example-app.js';
 import {component as eaShopping} from 'example-app/components/shopping/shopping.js';
 import {component as eaShoppingLists} from 'example-app/components/shopping-lists/shopping-lists.js';
+import {component as eaShoppingItem} from 'example-app/components/shopping-item/shopping-item.js';
+
 
 //
 // Create our angular module.
@@ -31,8 +33,14 @@ const module = angular.module('exampleApp', [
   'rxSubscribe'
 ]);
 
+// export as default exported value; in ES6 module is can be imported as
+// `import exampleApp from 'example-app';`
 export default module;
+
+// exported as "module" too; when transcoded to UMD module, it can be access as
+// `window.exampleApp.module`.
 export {module};
+
 
 //
 // Angular constants.
@@ -71,6 +79,7 @@ module.service('eaLists', services.Lists);
 module.component('exampleApp', exampleApp);
 module.component('eaShopping', eaShopping);
 module.component('eaShoppingLists', eaShoppingLists);
+module.component('eaShoppingItem', eaShoppingItem);
 
 //
 // Configurations - configure service.
@@ -90,13 +99,42 @@ module.component('eaShoppingLists', eaShoppingLists);
 //   https://docs.angularjs.org/guide/component#components-as-route-templates
 //
 module.config(['$routeProvider', function($routeProvider) {
+
+  /**
+   * Helper for our resolvers.
+   *
+   * Note that this is not service and doesn't return a singleton. It will
+   * called for each route resolving needing it.
+   *
+   * @param  {$route} $route $route service
+   * @return {Object}
+   */
+  function params($route) {
+    return $route.current.params;
+  }
+  params.$inject = ['$route'];
+
+  // configure routes
   $routeProvider
     .when('/', {template: '<ea-shopping-lists></ea-shopping-lists>'})
     .when('/lists/:listId', {
       template: '<ea-shopping list-id="$resolve.params.listId"></ea-shopping">',
 
       // Adds `params` to the template $resolve scope object.
-      resolve: {params: ['$route', $route => $route.current.params]}
+      resolve: {params}
+    })
+    .when('/lists/:listId/items/:itemId', {
+      template: `
+        <ea-shopping-item
+          list-id="$resolve.params.listId"
+          item-id="$resolve.params.itemId"
+        >
+          Failing to load item info.
+        </ea-shopping-item>
+      `,
+
+      // Adds `params` to the template $resolve scope object.
+      resolve: {params}
     })
     .otherwise('/');
 }]);
