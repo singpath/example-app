@@ -266,7 +266,7 @@ directory might contain templates, css files and and mocha tests.
 
 ### Navigation
 
-In this example, we will add view to show when a shopping item has been added.
+In this example, we will add a view to show when a shopping item has been added.
 
 
 #### 1. first define how to access the view
