@@ -26,7 +26,7 @@ in the `scripts` object):
 {
   "scripts": {
     "lint": "eslint src/ index.html",
-    "test": "./tools/bin/test.sh"
+    "test": "bash ./tools/bin/test.sh"
   }
 }
 ```
@@ -108,7 +108,7 @@ Once the rules are stable, you can change the the lint command to:
   "scripts": {
     "lint": "eslint src/ index*.js --fix",
     "lint-no-fix": "eslint src/ index*.js",
-    "test": "./tools/bin/test.sh"
+    "test": "bash ./tools/bin/test.sh"
   }
 }
 ```

@@ -6,9 +6,11 @@ Example of Angular development using JSPM.
 ## Requirements
 
 - git;
-- python;
 - nodejs v4+ with npm v3 (npm v2 probably work);
-- a bash terminal.
+- a bash.
+
+On Windows, installing [git-for-windows](https://git-scm.com/download/win)
+should provide you win a bash shell.
 
 
 ## Setup
