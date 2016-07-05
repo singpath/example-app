@@ -128,10 +128,10 @@ package.json (show only relevent fields):
 ```json
 {
   "scripts": {
-    "clean": "rm -rf _test/",
+    "clean": "bash ./tools/bin/clean",
     "postinstall": "jspm install",
     "start": "http-server -c-1 -p 8000",
-    "test": "./tools/bin/test.sh"
+    "test": "bash ./tools/bin/test.sh"
   },
   "devDependencies": {
     "jspm": "^0.17.0-beta.17",
