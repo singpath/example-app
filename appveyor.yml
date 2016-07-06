@@ -12,6 +12,7 @@ install:
   - ps: Install-Product node $env:nodejs_version $env:platform
 
   - npm config set spin false
+  - npm install js-yaml
   - npm install
 test_script:
   - node --version
