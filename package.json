@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
+    "coveralls": "^2.11.9",
     "eslint": "^2.13.1",
     "eslint-config-singpath": "file:packages/eslint-config-singpath",
     "eslint-plugin-babel": "^3.2.0",
@@ -84,6 +85,7 @@
     "build": "node ./tools/bin/build.js",
     "clean": "node ./tools/bin/clean.js",
     "cover": "node ./tools/bin/cover.js",
+    "coveralls": "node ./tools/bin/cover.js && cat ./coverage/lcov.info | coveralls",
     "lint": "npm run lint-no-fix -- --fix",
     "lint-no-fix": "eslint src/ packages/ tools/ index.html",
     "postinstall": "jspm install",
