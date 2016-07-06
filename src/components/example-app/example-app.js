@@ -35,5 +35,6 @@ class AppController {
 AppController.$inject = ['$log', 'eaLists'];
 
 export const component = {
-  template, controller: AppController
+  template,
+  controller: AppController
 };

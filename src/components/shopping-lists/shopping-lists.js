@@ -45,5 +45,6 @@ class ShoppingListsController {
 ShoppingListsController.$inject = ['eaLists'];
 
 export const component = {
-  template, controller: ShoppingListsController
+  template,
+  controller: ShoppingListsController
 };
