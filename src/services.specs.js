@@ -341,7 +341,8 @@ describe('services', function() {
 
         registration.next(null);
         registration.next({
-          registeredAt: 1234, $key: 'bob'
+          registeredAt: 1234,
+          $key: 'bob'
         });
         listInfo.next({createdAt: 1234});
         items.next(['bread']);

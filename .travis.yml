@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - '4'
+before_install:
+  npm install js-yaml
+script:
+  - npm run lint-no-fix
+  - npm run test
+  - npm run coveralls
+

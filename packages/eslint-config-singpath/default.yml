@@ -158,6 +158,7 @@ rules:
   no-magic-numbers:
   - error
   - ignoreArrayIndexes: true
+    ignore: [-1, 0, 1]
   # disallow multiple spaces (fixable)
   no-multi-spaces: error
   # disallow multiline strings
@@ -438,7 +439,6 @@ rules:
   object-curly-newline:
   - error
   - multiline: true
-    minProperties: 2
   # enforce consistent spacing inside braces (fixable)
   object-curly-spacing:
   - error
