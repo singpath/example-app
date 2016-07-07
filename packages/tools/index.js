@@ -40,3 +40,39 @@ exports.exec = function(cmd, opts) {
     sh.exit(e.status);
   }
 };
+
+/**
+ * Log and remove list of of file/directory.
+ *
+ * @param  {string|string[]}                   paths path of file/directory to remove
+ * @param  {{message: string, force: boolean}} opts  options
+ */
+exports.clean = function(paths, opts) {
+  opts = Object.assign({
+    message: 'Removing build/test artifacts',
+    force: false
+  }, opts);
+  paths = [].concat(paths).filter(path => sh.test('-e', path));
+
+  if (paths.length === 0) {
+    sh.echo('Nothing to remove.');
+    return;
+  }
+
+  sh.echo(`${opts.message}: ${paths.map(p => `"${p}"`).join(', ')}...`);
+
+  if (opts.force) {
+    sh.rm('-rf', paths);
+  }
+
+  const dirs = paths.filter(path => sh.test('-d', path));
+  const files = paths.filter(path => sh.test('-d', path) === false);
+
+  if (dirs.length > 0) {
+    sh.rm('-r', dirs);
+  }
+
+  if (files.length > 0) {
+    sh.rm(files);
+  }
+};

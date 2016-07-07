@@ -32,13 +32,7 @@ const depsOpts = `--global-name exampleApp --global-deps '${JSON.stringify(globa
 
 
 // Setup
-const artifacts = [dist].filter(dir => sh.test('-d', dir));
-
-if (artifacts.length > 0) {
-  sh.echo(`Removing ${artifacts.map(dir => `"${dir}/"`).join(', ')}...`);
-  sh.rm('-r', artifacts);
-}
-
+tools.clean(dist);
 sh.echo(`Setting up "${dist}/"...`);
 sh.mkdir('-p', dist);
 sh.cp('LICENSE', 'tools/assets/dist/*', dist);

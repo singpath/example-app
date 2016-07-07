@@ -32,3 +32,13 @@ tools.exec('ls -la dist', {
 
 For more complex usage like piping, try [shelljs's](http://documentup.com/shelljs/shelljs)
 `exec`.
+
+
+### `clean`
+
+```js
+
+const tools = require('@singpath/tools');
+
+tools.clean(['dist', 'coverage'], {force: true});
+```

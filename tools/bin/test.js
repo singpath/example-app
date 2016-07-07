@@ -20,13 +20,7 @@ const output = path.join(dist, 'test.js');
 
 
 // Setup
-const artifacts = [dist].filter(dir => sh.test('-d', dir));
-
-if (artifacts.length > 0) {
-  sh.echo(`Removing ${artifacts.map(dir => `"${dir}/"`).join(', ')}...`);
-  sh.rm('-r', artifacts);
-}
-
+tools.clean(dist);
 sh.echo(`Setting up "${dist}/"...`);
 sh.mkdir('-p', dist);
 
