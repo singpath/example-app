@@ -6,7 +6,7 @@
  */
 
 // dependencies
-const exec = require('../lib/exec.js');
+const tools = require('../../packages/tools/index.js');
 const path = require('path');
 const sh = require('shelljs');
 
@@ -46,10 +46,10 @@ sh.cp('LICENSE', 'tools/assets/dist/*', dist);
 
 // Bundles
 sh.echo(`Buidling ${output}...`);
-exec(`jspm build ${src} "${output}" ${depsOpts} --format umd --skip-source-maps`);
+tools.exec(`jspm build ${src} "${output}" ${depsOpts} --format umd --skip-source-maps`);
 
 sh.echo(`Buidling ${outputMin}...`);
-exec(`jspm build ${src} "${outputMin}" ${depsOpts} --format umd --minify`);
+tools.exec(`jspm build ${src} "${outputMin}" ${depsOpts} --format umd --minify`);
 
 
 // Dependency tree

@@ -11,7 +11,7 @@ const ps = require('child_process');
  * @param  {string} cmd  shell command to run
  * @param  {?{printCmd: boolean, ignoreStdout: boolean, ignoreStderr: boolean}} opts options
  */
-module.exports = function exec(cmd, opts) {
+exports.exec = function(cmd, opts) {
   opts = Object.assign({
     printCmd: true,
     ignoreStdout: false,
