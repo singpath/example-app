@@ -22,7 +22,7 @@ tools.exec('ls -la dist', {
   printCmd: true,
 
   // by default, the command will inherit the node script stdout;
-  // set this property to false to ignore the command stdout
+  // set this property to `true` to ignore the command stdout
   ignoreStdout: false,
 
   // same for the command stderr
@@ -40,5 +40,11 @@ For more complex usage like piping, try [shelljs's](http://documentup.com/shellj
 
 const tools = require('@singpath/tools');
 
-tools.clean(['dist', 'coverage'], {force: true});
+tools.clean(['dist', 'coverage'], {
+  // force removing the folders when this is set to `true`
+  force: false,
+
+  // info message prefix
+  message: 'Removing build/test artifacts'
+});
 ```
