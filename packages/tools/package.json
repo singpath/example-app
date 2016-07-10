@@ -1,0 +1,27 @@
+{
+  "name": "@singpath/tools",
+  "version": "0.0.3",
+  "main": "index.js",
+  "author": "Chris Boesch",
+  "description": "Singpath package script helpers",
+  "scripts": {
+    "test": "node ./index.js"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/singpath/example-app"
+  },
+  "bugs": "https://github.com/singpath/example-app/issues/",
+  "dependencies": {
+    "shelljs": "^0.7.0"
+  },
+  "keywords": [
+    "singpath"
+  ],
+  "license": "MIT"
+}

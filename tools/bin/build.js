@@ -6,7 +6,7 @@
  */
 
 // dependencies
-const exec = require('../lib/exec.js');
+const tools = require('../../packages/tools/index.js');
 const path = require('path');
 const sh = require('shelljs');
 
@@ -32,13 +32,7 @@ const depsOpts = `--global-name exampleApp --global-deps '${JSON.stringify(globa
 
 
 // Setup
-const artifacts = [dist].filter(dir => sh.test('-d', dir));
-
-if (artifacts.length > 0) {
-  sh.echo(`Removing ${artifacts.map(dir => `"${dir}/"`).join(', ')}...`);
-  sh.rm('-r', artifacts);
-}
-
+tools.clean(dist);
 sh.echo(`Setting up "${dist}/"...`);
 sh.mkdir('-p', dist);
 sh.cp('LICENSE', 'tools/assets/dist/*', dist);
@@ -46,10 +40,10 @@ sh.cp('LICENSE', 'tools/assets/dist/*', dist);
 
 // Bundles
 sh.echo(`Buidling ${output}...`);
-exec(`jspm build ${src} "${output}" ${depsOpts} --format umd --skip-source-maps`);
+tools.exec(`jspm build ${src} "${output}" ${depsOpts} --format umd --skip-source-maps`);
 
 sh.echo(`Buidling ${outputMin}...`);
-exec(`jspm build ${src} "${outputMin}" ${depsOpts} --format umd --minify`);
+tools.exec(`jspm build ${src} "${outputMin}" ${depsOpts} --format umd --minify`);
 
 
 // Dependency tree

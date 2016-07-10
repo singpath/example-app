@@ -6,9 +6,9 @@
  */
 
 // dependencies
-const exec = require('../lib/exec.js');
 const path = require('path');
 const sh = require('shelljs');
+const tools = require('../../packages/tools/index.js');
 
 // exit on error
 sh.set('-e');
@@ -20,22 +20,16 @@ const output = path.join(dist, 'test.js');
 
 
 // Setup
-const artifacts = [dist].filter(dir => sh.test('-d', dir));
-
-if (artifacts.length > 0) {
-  sh.echo(`Removing ${artifacts.map(dir => `"${dir}/"`).join(', ')}...`);
-  sh.rm('-r', artifacts);
-}
-
+tools.clean(dist);
 sh.echo(`Setting up "${dist}/"...`);
 sh.mkdir('-p', dist);
 
 
 // Transcode tests to a nodejs module.
 sh.echo(`Transcoding and bundling tests to "${output}"...`);
-exec(`jspm build ${src} "${output}" --skip-rollup --format cjs`);
+tools.exec(`jspm build ${src} "${output}" --skip-rollup --format cjs`);
 
 
 // Run them with mocha (a nodejs test runner).
 sh.echo('Running tests...');
-exec(`mocha -b --require source-map-support/register "${output}"`);
+tools.exec(`mocha -b --require source-map-support/register "${output}"`);
