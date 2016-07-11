@@ -179,9 +179,11 @@ function createReport(coverage, opts) {
   const reporter = new istanbul.Reporter(null, opts.coverage);
   const sync = true;
 
+  sh.echo('Creating reports...');
+
   collector.add(coverage);
   reporter.addAll(opts.reports);
-  reporter.write(collector, sync);
+  reporter.write(collector, sync, () => sh.echo('Reports created.'));
 }
 
 /**
@@ -191,7 +193,7 @@ function createReport(coverage, opts) {
  * @return {Promise<void, Error>}
  */
 function rejectHandler(err) {
-  process.stderr.write(`${err}\n`);
+  process.stderr.write(`${err.stack || err}\n`);
 
   if (sh.config.fatal) {
     sh.exit(1);
