@@ -48,3 +48,40 @@ tools.clean(['dist', 'coverage'], {
   message: 'Removing build/test artifacts'
 });
 ```
+
+
+## `mocha`
+
+```js
+const tools = require('@singpath/tools');
+
+tools.mocha(my-app/my-app.specs.js, {
+  // Mocha ui
+  ui: 'bdd'
+});
+```
+
+
+## `instanbul`
+
+```js
+const tools = require('@singpath/tools');
+
+tools.instanbul(my-app/my-app.specs.js, {
+  // Mocha ui
+  ui: 'bdd',
+
+  // path to coverage directory (the directory must exist)
+  coverage: path.resolve('./coverage'),
+
+  // instanbul report types
+  reports: ['lcov', 'text'],
+
+  // exclude function factory
+  exclude: function(baseURL) {
+    return function excludeModule(path) {
+      return path.startsWith(baseURL + 'jspm_packages') || path.endsWith('specs.js');
+    }
+  }
+});
+```

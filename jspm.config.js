@@ -84,8 +84,10 @@ SystemJS.config({
     "angular": "github:angular/bower-angular@1.5.6",
     "angular-route": "github:angular/bower-angular-route@1.5.6",
     "angular-rx-subscribe": "npm:angular-rx-subscribe@0.2.5",
+    "assert": "github:jspm/nodelibs-assert@0.2.0-alpha",
     "buffer": "github:jspm/nodelibs-buffer@0.2.0-alpha",
     "chai": "npm:chai@3.5.0",
+    "child_process": "github:jspm/nodelibs-child_process@0.2.0-alpha",
     "css": "github:systemjs/plugin-css@0.1.22",
     "dirty-chai": "npm:dirty-chai@1.2.2",
     "firebase": "github:firebase/firebase-bower@3.0.5",
@@ -96,7 +98,8 @@ SystemJS.config({
     "sinon": "npm:sinon@1.17.4",
     "sinon-chai": "npm:sinon-chai@2.8.0",
     "text": "github:systemjs/plugin-text@0.0.8",
-    "util": "github:jspm/nodelibs-util@0.2.0-alpha"
+    "util": "github:jspm/nodelibs-util@0.2.0-alpha",
+    "vm": "github:jspm/nodelibs-vm@0.2.0-alpha"
   },
   packages: {
     "npm:sinon@1.17.4": {

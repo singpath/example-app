@@ -1,6 +1,6 @@
 {
   "name": "@singpath/tools",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "index.js",
   "author": "Chris Boesch",
   "description": "Singpath package script helpers",
@@ -18,7 +18,13 @@
   },
   "bugs": "https://github.com/singpath/example-app/issues/",
   "dependencies": {
-    "shelljs": "^0.7.0"
+    "istanbul": "^0.4.3",
+    "mocha": "^2.5.3",
+    "shelljs": "^0.7.0",
+    "systemjs-istanbul-hook": "^0.1.0"
+  },
+  "peerDependencies": {
+    "jspm": "^0.17.0-beta.22"
   },
   "keywords": [
     "singpath"
