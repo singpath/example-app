@@ -6,7 +6,7 @@ const path = require('path');
 const ps = require('child_process');
 const sh = require('shelljs');
 const systemIstanbul = require('systemjs-istanbul-hook');
-const SystemJS = require('systemjs');
+const jspm = require('jspm');
 const istanbul = require('istanbul');
 
 /**
@@ -83,25 +83,43 @@ exports.clean = function(paths, opts) {
   }
 };
 
+
 /**
- * Configure SystemJS and resolve to jspm's baseURL.
+ * Resolve with a module loader.
  *
- * @return {Promise<string, Error>}
+ * @return {Promise<jspm.Loader, Error>}
  */
 function loadJspmConfig() {
   sh.echo('Loading jspm config...');
 
-  return SystemJS.import('./jspm.config.js').then(() => SystemJS.baseURL);
+  return new Promise(resolve => resolve(new jspm.Loader()));
+}
+
+/**
+ * Resolve with a module loader which will add coverage instrumentation
+ * to src code.
+ *
+ * @param  {{exclude: function}}  opts coverage options
+ * @return {Promise<void, Error>}
+ */
+function hookInstanbul(opts) {
+  return loadJspmConfig().then(loader => {
+    sh.echo('Registering instrumentation hook to loader...');
+    systemIstanbul.hookSystemJS(loader, opts.exclude(loader.baseURL));
+
+    return loader;
+  });
 }
 
 /**
  * Run mocha tests
  *
- * @param  {string|array} modules modules defining mocha tests.
- * @param  {?{ui: string}} opts mocha runner options.
+ * @param  {jspm.Loader}   loader  a module loader.
+ * @param  {string|array}  modules modules defining mocha tests.
+ * @param  {?{ui: string}} opts    mocha runner options.
  * @return {Promise<void, Error>}
  */
-function runTests(modules, opts) {
+function runTests(loader, modules, opts) {
   const runner = new Mocha({ui: opts.ui});
 
   switch (opts.ui) {
@@ -119,7 +137,7 @@ function runTests(modules, opts) {
   sh.echo(`Running tests in ${modules.map(m => `"${m}"`).join(', ')}...`);
 
   return Promise.all(
-    modules.map(m => SystemJS.import(m))
+    modules.map(m => loader.import(m))
   ).then(
     () => new Promise(
       (resolve, reject) => runner.run((failures) => {
@@ -131,19 +149,6 @@ function runTests(modules, opts) {
       })
     )
   );
-}
-
-/**
- * Add coverage instrumentation to src code.
- *
- * @param  {{exclude: function}}  opts coverage options
- * @return {Promise<void, Error>}
- */
-function hookInstanbul(opts) {
-  return loadJspmConfig().then(baseURL => {
-    sh.echo('Registering instrumentation hook to SystemJS...');
-    systemIstanbul.hookSystemJS(SystemJS, opts.exclude(baseURL));
-  });
 }
 
 /**
@@ -198,7 +203,7 @@ function rejectHandler(err) {
 /**
  * Run mocha tests.
  *
- * bridge mocha and SystemJS.
+ * bridge mocha and jspm.
  *
  * @param  {string|array}  modules modules defining mocha tests.
  * @param  {?{ui: string}} opts    mocha runner options.
@@ -213,14 +218,14 @@ exports.mocha = function(modules, opts) {
   opts = Object.assign({ui: 'bdd'}, opts);
 
   return loadJspmConfig().then(
-    () => runTests(modules, opts)
+    loader => runTests(loader, modules, opts)
   ).catch(rejectHandler);
 };
 
 /**
  * Run mocha tests with coverage and create lcov and text reports.
  *
- * Bridge between mocha, instanbul and SystemJS.
+ * Bridge between mocha, instanbul and jspm.
  *
  * @param  {string|array} modules modules defining mocha tests.
  * @param  {?{ui: string, exclude: function, coverage: string}} opts mocha runner options.
@@ -243,7 +248,7 @@ exports.instanbul = function(modules, opts) {
   }, opts);
 
   return hookInstanbul(opts).then(
-    () => runTests(modules, opts)
+    loader => runTests(loader, modules, opts)
   ).then(
     () => saveCoverage(opts)
   ).then(
