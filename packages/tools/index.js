@@ -1,7 +1,13 @@
 'use strict';
 
-const sh = require('shelljs');
+const fs = require('fs');
+const Mocha = require('mocha');
+const path = require('path');
 const ps = require('child_process');
+const sh = require('shelljs');
+const systemIstanbul = require('systemjs-istanbul-hook');
+const SystemJS = require('systemjs');
+const istanbul = require('istanbul');
 
 /**
  * Basic exec function.
@@ -52,7 +58,7 @@ exports.clean = function(paths, opts) {
     message: 'Removing build/test artifacts',
     force: false
   }, opts);
-  paths = [].concat(paths).filter(path => sh.test('-e', path));
+  paths = [].concat(paths).filter(p => sh.test('-e', p));
 
   if (paths.length === 0) {
     sh.echo('Nothing to remove.');
@@ -65,8 +71,8 @@ exports.clean = function(paths, opts) {
     sh.rm('-rf', paths);
   }
 
-  const dirs = paths.filter(path => sh.test('-d', path));
-  const files = paths.filter(path => sh.test('-d', path) === false);
+  const dirs = paths.filter(p => sh.test('-d', p));
+  const files = paths.filter(p => sh.test('-d', p) === false);
 
   if (dirs.length > 0) {
     sh.rm('-r', dirs);
@@ -75,4 +81,172 @@ exports.clean = function(paths, opts) {
   if (files.length > 0) {
     sh.rm(files);
   }
+};
+
+/**
+ * Configure SystemJS and resolve to jspm's baseURL.
+ *
+ * @return {Promise<string, Error>}
+ */
+function loadJspmConfig() {
+  sh.echo('Loading jspm config...');
+
+  return SystemJS.import('./jspm.config.js').then(() => SystemJS.baseURL);
+}
+
+/**
+ * Run mocha tests
+ *
+ * @param  {string|array} modules modules defining mocha tests.
+ * @param  {?{ui: string}} opts mocha runner options.
+ * @return {Promise<void, Error>}
+ */
+function runTests(modules, opts) {
+  const runner = new Mocha({ui: opts.ui});
+
+  switch (opts.ui) {
+    case 'bdd':
+    case 'tdd':
+    case 'mocha-qunit-ui':
+      sh.echo('Augmenting global with mocha API...');
+      runner.suite.emit('pre-require', global, 'global-mocha-context', runner);
+      break;
+
+    default:
+      sh.echo('No mocha API to add to global.');
+  }
+
+  sh.echo(`Running tests in ${modules.map(m => `"${m}"`).join(', ')}...`);
+
+  return Promise.all(
+    modules.map(m => SystemJS.import(m))
+  ).then(
+    () => new Promise(
+      (resolve, reject) => runner.run((failures) => {
+        if (failures) {
+          reject(failures);
+        } else {
+          resolve();
+        }
+      })
+    )
+  );
+}
+
+/**
+ * Add coverage instrumentation to src code.
+ *
+ * @param  {{exclude: function}}  opts coverage options
+ * @return {Promise<void, Error>}
+ */
+function hookInstanbul(opts) {
+  return loadJspmConfig().then(baseURL => {
+    sh.echo('Registering instrumentation hook to SystemJS...');
+    systemIstanbul.hookSystemJS(SystemJS, opts.exclude(baseURL));
+  });
+}
+
+/**
+ * Save coverage data to "./coverage/coverage.json".
+ *
+ * @param  {{coverage: string}} opts coverage options
+ * @return {Object}                  the coverage object
+ */
+function saveCoverage(opts) {
+  const coveragePath = path.join(opts.coverage, 'coverage.json');
+  const coverage = systemIstanbul.remapCoverage();
+
+  sh.echo(`Saving coverage data in ${coveragePath}...`);
+
+  fs.writeFileSync(coveragePath, JSON.stringify(coverage));
+
+  return coverage;
+}
+
+/**
+ * Create lcov and text reports.
+ *
+ * @param  {Object}             coverage the coverage object.
+ * @param  {{coverage: string}} opts     coverage options
+ */
+function createReport(coverage, opts) {
+  const collector = new istanbul.Collector();
+  const reporter = new istanbul.Reporter(null, opts.coverage);
+  const sync = true;
+
+  collector.add(coverage);
+  reporter.addAll(opts.reports);
+  reporter.write(collector, sync);
+}
+
+/**
+ * Print error to stderr and exit process when shelljs "-e" option is set.
+ *
+ * @param  {Error}   err error to print.
+ * @return {Promise<void, Error>}
+ */
+function rejectHandler(err) {
+  process.stderr.write(`${err}\n`);
+
+  if (sh.config.fatal) {
+    sh.exit(1);
+  }
+
+  return Promise.reject(err);
+}
+
+/**
+ * Run mocha tests.
+ *
+ * bridge mocha and SystemJS.
+ *
+ * @param  {string|array}  modules modules defining mocha tests.
+ * @param  {?{ui: string}} opts    mocha runner options.
+ * @return {Promise<void, Error>}
+ */
+exports.mocha = function(modules, opts) {
+
+  // convert undefined or a string to an array
+  modules = [].concat(modules);
+
+  // set defaults options
+  opts = Object.assign({ui: 'bdd'}, opts);
+
+  return loadJspmConfig().then(
+    () => runTests(modules, opts)
+  ).catch(rejectHandler);
+};
+
+/**
+ * Run mocha tests with coverage and create lcov and text reports.
+ *
+ * Bridge between mocha, instanbul and SystemJS.
+ *
+ * @param  {string|array} modules modules defining mocha tests.
+ * @param  {?{ui: string, exclude: function, coverage: string}} opts mocha runner options.
+ * @return {Promise<void, Error>}
+ */
+exports.instanbul = function(modules, opts) {
+  modules = [].concat(modules);
+
+  // set defaults options
+  opts = Object.assign({
+    ui: 'bdd',
+    coverage: path.resolve('./coverage'),
+    reports: ['lcov', 'text'],
+
+    exclude(baseURL) {
+      const jspmPackages = `${baseURL}jspm_packages`;
+
+      return address => (address.startsWith(jspmPackages) || address.endsWith('specs.js'));
+    }
+  }, opts);
+
+  return hookInstanbul(opts).then(
+    () => runTests(modules, opts)
+  ).then(
+    () => saveCoverage(opts)
+  ).then(
+    coverage => createReport(coverage, opts)
+  ).catch(rejectHandler);
 };
