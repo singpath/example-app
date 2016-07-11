@@ -243,7 +243,12 @@ exports.instanbul = function(modules, opts) {
     exclude(baseURL) {
       const jspmPackages = `${baseURL}jspm_packages`;
 
-      return address => (address.startsWith(jspmPackages) || address.endsWith('specs.js'));
+      return address => (
+        address.startsWith(jspmPackages) ||
+        address.endsWith('specs.js') ||
+        address.endsWith('.css') ||
+        address.endsWith('.html')
+      );
     }
   }, opts);
 
