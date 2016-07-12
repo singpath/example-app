@@ -2,16 +2,20 @@
 
 ## setup
 
-Install Nodejs mocha:
+Install Nodejs mocha via our singpath helper:
 ```
-npm install mocha --save-dev
+npm install @singpath/tools --save-dev
 ```
 
-Install the chai as a jspm dependency:
+It links together [mocha], [instanbul] \(coverage) and [systemjs-istanbul-hook].
+
+Install [chai] \(assertion library) as a jspm dependency:
 ```
-jspm install npm:chai
+jspm install npm:chai npm:sinon-chai npm:dirty-chai
 
 ```
+
+[sinon-chai] and [dirty-chai] are chai plugins extending the [chai] API.
 
 
 ## Mocha + chai
@@ -36,8 +40,9 @@ Controller.$inject = [];
 
 example.specs.js:
 ```js
-import {expect} from 'chai';
-import sinon from 'sinon';
+// Grouping testing framework import, chai plugin registration and our helpers
+// in src/tools/chai.js
+import {expect, sinon} from 'example-app/tools/chai.js';
 
 import {Controller} from './example.js'
 
@@ -57,7 +62,7 @@ describe('example Controller', function() {
       ctrl.y = 2;
       ctrl.update();
 
-      expect(someMath.add).to.have.been.calledOnce;
+      expect(someMath.add).to.have.been.calledOnce();
       expect(someMath.add).to.have.been.calledWithExactly(1, 2);
       expect(ctrl.total).to.equal(result);
     });
@@ -68,113 +73,68 @@ describe('example Controller', function() {
 
 ```
 
-    Note: `describe` and `it` are global, injected by mocha at run time with
+    Note: `describe` and `it` are global, injected at run time with
     other helpers like `beforeEach` or `afterEach`.
 
 
 ## Test Run
 
-The tests are run in Nodejs using mocha CLI. To bridge JSPM and Nodejs, we first
-need to bundle the tests and dependency into a Nodejs module format:
-```
-mkdir -p tests/
-jspm build src/example.specs.js tests/bundle.js --skip-rollup --format cjs
-```
-
-It can then be run with mocha:
-```
-./node_modules/.bin/mocha tests/bundle.js
-```
-
-It works but any error will trace back to the bundle file wich is unhelpful.
-Thankfully, the bundle include a source map which map the the transcoded code
-to the source code. Using the `source-map-support` npm package, NodeJS will
-translate the traceback error message path to the source file paths:
-```
-npm install source-map-support --save-dev
-./node_modules/.bin/mocha --require source-map-support/register tests/bundle.js
-```
-
-We can write a bash script to combine those two commands, edit the script
-command in package.json to point to the script and just use `npm run test` or
-`npm test`:
-```
-mkdir -p tools/bin
-touch tools/bin/test.sh
-chmod +x tools/bin/test.sh
-```
-
-`tools/bin/test.sh`:
-```shell
-#!/usr/bin/env bash
-set -e
-
-SRC=./src/example.specs.js
-DIST=_test
-DEST=${DIST}/test.js
-
-# Clean up
-rm -rf "$DIST"
-mkdir -p "$DIST"
-
-# Transcode and bundle tests in a format Nodejs can load.
-./node_modules/.bin/jspm build "$SRC" "$DEST" --skip-rollup --format cjs
-
-# Run test using mocha (test runner).
-./node_modules/.bin/mocha --require source-map-support/register "$DEST"
-```
-
-package.json (show only relevent fields):
-```json
-{
-  "scripts": {
-    "clean": "bash ./tools/bin/clean",
-    "postinstall": "jspm install",
-    "start": "http-server -c-1 -p 8000",
-    "test": "bash ./tools/bin/test.sh"
-  },
-  "devDependencies": {
-    "jspm": "^0.17.0-beta.17",
-    "http-server": "^0.9.0",
-    "mocha": "^2.5.3",
-    "source-map-support": "^0.4.0"
-  }
-}
-```
-
-Running tests:
+To run example-app tests:
 ```shell
 npm test
 ```
 
+The tests are run in Nodejs using mocha API and JSPM `import`. Our
+runner follows those steps:
+
+1.  loads JSPM configurations;
+2.  starts a [mocha] runner to collect tests cases;
+3.  using JSPM loader, load test files, filling the [mocha] runner;
+4.  run the test cases.
+
+See [@singpath/tools] and [tools/bin/test.js] for more details.
+
 
 ## Coverage
 
-We will use the same strategy to run tests with coverage:
+To run example-app tests with coverage:
+```shell
+npm run cover
+```
 
-- install istanbul and remap-istanbul;
-- build tests;
-- run the tests with istanbul instructions;
-- remap the coverage data to the source file;
-- build the report.
+It takes the following steps:
 
-See [tools/bin/cover.sh](../tools/bin/cover.sh) for more details.
+1.  loads JSPM configurations;
+2.  register a JSPM loader hook to add [instanbul] instrumentations to the
+    source code;
+3.  starts a [mocha] runner to collect tests cases;
+4.  using JSPM loader, load test files and fill the [mocha] runner with test
+    cases;
+5.  run the test cases;
+6.  collect coverage data and save them in a JSON file (it can used with
+    instanbul CLI to create different reports);
+7.  create default reports using [instanbul] API.
 
-TODO: fix uncovered line report.
+
+See [@singpath/tools] and [tools/bin/cover.js] for more details.
 
 
 ## References
 
+- [Testing and coverage with SystemJS, Mocha + Istanbul](http://guybedford.com/systemjs-mocha-istanbul)
 - [mocha]
 - [chai]
 - [sinon]
-- [sinon-chai]
-- [istanbul](https://gotwarlost.github.io/istanbul/)
-- [source-map-support](https://github.com/evanw/node-source-map-support)
-- [remap-istanbul](https://github.com/SitePen/remap-istanbul)
+- [instanbul]
 
 
 [mocha]: https://mochajs.org/
 [chai]: http://chaijs.com/
 [sinon]: http://sinonjs.org/
 [sinon-chai]: https://github.com/domenic/sinon-chai
+[dirty-chai]: https://www.npmjs.com/package/dirty-chai
+[instanbul]: https://gotwarlost.github.io/istanbul/
+[systemjs-istanbul-hook]: https://www.npmjs.com/package/systemjs-istanbul-hook
+[@singpath/tools]: https://www.npmjs.com/package/@singpath/tools
+[tools/bin/test.js]: ../tools/bin/test.js
+[tools/bin/cover.js]: ../tools/bin/cover.js
