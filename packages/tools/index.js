@@ -112,7 +112,9 @@ function hookInstanbul(opts) {
 }
 
 /**
- * Run mocha tests
+ * Run mocha tests.
+ *
+ * Collect test cases by importing the test modules.
  *
  * @param  {jspm.Loader}   loader  a module loader.
  * @param  {string|array}  modules modules defining mocha tests.
@@ -122,23 +124,37 @@ function hookInstanbul(opts) {
 function runTests(loader, modules, opts) {
   const runner = new Mocha({ui: opts.ui});
 
-  switch (opts.ui) {
-    case 'bdd':
-    case 'tdd':
-    case 'mocha-qunit-ui':
-      sh.echo('Augmenting global with mocha API...');
-      runner.suite.emit('pre-require', global, 'global-mocha-context', runner);
-      break;
+  return new Promise((resolve, reject) => {
+    switch (opts.ui) {
+      case 'bdd':
+      case 'tdd':
+      case 'mocha-qunit-ui':
+        sh.echo('Augmenting global with mocha API...');
+        runner.suite.emit('pre-require', global, 'global-mocha-context', runner);
 
-    default:
-      sh.echo('No mocha API to add to global.');
-  }
+        // test cases are collected via mocha global API;
+        // no need to do anything with the test modules after loading them
+        resolve(() => undefined);
+        break;
 
-  sh.echo(`Running tests in ${modules.map(m => `"${m}"`).join(', ')}...`);
+      case 'exports':
 
-  return Promise.all(
-    modules.map(m => loader.import(m))
-  ).then(
+        // The test cases are exported with this ui;
+        // they need to be added after import.The following
+        // function should run with each module export
+        resolve(testModule => runner.suite.emit('require', testModule));
+        break;
+
+      default:
+
+        // The "require" interface is not currently supported.
+        reject(new Error(`"${opts.ui}" is not supported by this runner.`));
+    }
+  }).then(moduleHandler => {
+    sh.echo(`Loading tests in ${modules.map(m => `"${m}"`).join(', ')}...`);
+
+    return Promise.all(modules.map(m => loader.import(m).then(moduleHandler)));
+  }).then(
     () => new Promise(
       (resolve, reject) => runner.run((failures) => {
         if (failures) {
@@ -234,6 +250,8 @@ exports.mocha = function(modules, opts) {
  * @return {Promise<void, Error>}
  */
 exports.instanbul = function(modules, opts) {
+
+  // convert undefined or a string to an array
   modules = [].concat(modules);
 
   // set defaults options
