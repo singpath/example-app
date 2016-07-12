@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "devDependencies": {
+    "archiver": "^1.0.0",
     "babel-eslint": "^6.0.4",
     "coveralls": "^2.11.9",
     "eslint": "^2.13.1",

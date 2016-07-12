@@ -85,3 +85,17 @@ tools.instanbul(my-app/my-app.specs.js, {
   }
 });
 ```
+
+## `zip`
+
+```js
+const tools = require('@singpath/tools');
+
+tools.zip('dist/my-app', 'dist/my-app.zip', {
+  // where to save the directory in the archive; uses the directory name
+  // by default.
+  root: 'my-app'
+}).then(
+  () => console.log('archive created')
+);
+```

@@ -1,13 +1,14 @@
 'use strict';
 
+const archiver = require('archiver');
 const fs = require('fs');
+const istanbul = require('istanbul');
+const jspm = require('jspm');
 const Mocha = require('mocha');
 const path = require('path');
 const ps = require('child_process');
 const sh = require('shelljs');
 const systemIstanbul = require('systemjs-istanbul-hook');
-const jspm = require('jspm');
-const istanbul = require('istanbul');
 
 /**
  * Basic exec function.
@@ -279,4 +280,43 @@ exports.instanbul = function(modules, opts) {
   ).then(
     coverage => createReport(coverage, opts)
   ).catch(rejectHandler);
+};
+
+/**
+ * Archive a directive.
+ *
+ * @param  {string}              source path to directory to archive
+ * @param  {string}              dest   path to save the zip archive
+ * @param  {?{root: string}}     opts   option; "root" will default to the
+ *                                      directory name
+ * @return {Promise<void, Error>}
+ */
+exports.zip = function(source, dest, opts) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(dest);
+    const archive = archiver('zip');
+
+    opts = opts || {};
+
+    if (!opts.root) {
+      opts.root = path.basename(path.resolve(source));
+    }
+
+    output.on('close', function() {
+      resolve();
+    });
+
+    archive.on('error', function(err) {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.bulk([{
+      expand: true,
+      cwd: source,
+      src: ['**'],
+      dest: opts.root
+    }]);
+    archive.finalize();
+  }).catch(rejectHandler);
 };
