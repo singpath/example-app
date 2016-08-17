@@ -25,24 +25,70 @@ exports.exec = function(cmd, opts) {
     ignoreStderr: false
   }, opts);
 
-  const stdout = 1;
-  const stderr = 2;
-  const stdio = [process.stdin, process.stdout, process.stderr];
+  exports.execPipe(cmd, {
+    printCmd: opts.printCmd,
+    stdout: opts.ignoreStdout ? 'ignore' : 'inherit',
+    stderr: opts.ignoreStderr ? 'ignore' : 'inherit'
+  });
+};
 
-  if (opts.ignoreStdout) {
-    stdio[stdout] = 'ignore';
+function getStream(streamPath, flag) {
+  if (!streamPath) {
+    return 'ignore';
   }
 
-  if (opts.ignoreStderr) {
-    stdio[stderr] = 'ignore';
+  if (typeof streamPath !== 'string') {
+    return streamPath;
   }
+
+  switch (streamPath) {
+    case 'ignore':
+    case 'inherit':
+      return streamPath;
+    default:
+      return fs.openSync(streamPath, flag);
+  }
+}
+
+/**
+ * Basic exec function which can pipe a child process standard stream to a
+ * provided stream or file.
+ *
+ * `shelljs.exec(cmd).to(path)` seems to be affect by a 8kb limit.
+ *
+ * By default, the child process standard stream are pipe to the main process
+ * one's.
+ *
+ * @example
+ * execPipe('ls -lha dist/', {stdout: 'dist-list.txt'});
+ *
+ * @param  {string} cmd  shell command to run
+ * @param  {?{printCmd: boolean, stdin: string, stdout: string, stderr: string}} opts options
+ */
+exports.execPipe = function(cmd, opts) {
+  opts = Object.assign({
+    printCmd: true,
+    stdin: 'inherit',
+    stdout: 'inherit',
+    stderr: 'inherit'
+  }, opts);
 
   if (opts.printCmd) {
     sh.echo(cmd);
   }
 
+  const streams = ['stdin', 'stdout', 'stderr'];
+
   try {
+    const stdio = streams.map(s => getStream(opts[s], s === 'stdin' ? 'r' : 'w'));
+
     ps.execSync(cmd, {stdio});
+
+    streams.filter(
+      s => stdio && stdio[s] && typeof stdio[s] !== 'string' && stdio[s] !== process[s]
+    ).map(
+      s => fs.closeSync(stdio[s])
+    );
   } catch (e) {
     sh.exit(e.status);
   }
