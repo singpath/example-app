@@ -1,13 +1,14 @@
 'use strict';
 
+const archiver = require('archiver');
 const fs = require('fs');
+const istanbul = require('istanbul');
+const jspm = require('jspm');
 const Mocha = require('mocha');
 const path = require('path');
 const ps = require('child_process');
 const sh = require('shelljs');
 const systemIstanbul = require('systemjs-istanbul-hook');
-const jspm = require('jspm');
-const istanbul = require('istanbul');
 
 /**
  * Basic exec function.
@@ -24,24 +25,70 @@ exports.exec = function(cmd, opts) {
     ignoreStderr: false
   }, opts);
 
-  const stdout = 1;
-  const stderr = 2;
-  const stdio = [process.stdin, process.stdout, process.stderr];
+  exports.execPipe(cmd, {
+    printCmd: opts.printCmd,
+    stdout: opts.ignoreStdout ? 'ignore' : 'inherit',
+    stderr: opts.ignoreStderr ? 'ignore' : 'inherit'
+  });
+};
 
-  if (opts.ignoreStdout) {
-    stdio[stdout] = 'ignore';
+function getStream(streamPath, flag) {
+  if (!streamPath) {
+    return 'ignore';
   }
 
-  if (opts.ignoreStderr) {
-    stdio[stderr] = 'ignore';
+  if (typeof streamPath !== 'string') {
+    return streamPath;
   }
+
+  switch (streamPath) {
+    case 'ignore':
+    case 'inherit':
+      return streamPath;
+    default:
+      return fs.openSync(streamPath, flag);
+  }
+}
+
+/**
+ * Basic exec function which can pipe a child process standard stream to a
+ * provided stream or file.
+ *
+ * `shelljs.exec(cmd).to(path)` seems to be affect by a 8kb limit.
+ *
+ * By default, the child process standard stream are pipe to the main process
+ * one's.
+ *
+ * @example
+ * execPipe('ls -lha dist/', {stdout: 'dist-list.txt'});
+ *
+ * @param  {string} cmd  shell command to run
+ * @param  {?{printCmd: boolean, stdin: string, stdout: string, stderr: string}} opts options
+ */
+exports.execPipe = function(cmd, opts) {
+  opts = Object.assign({
+    printCmd: true,
+    stdin: 'inherit',
+    stdout: 'inherit',
+    stderr: 'inherit'
+  }, opts);
 
   if (opts.printCmd) {
     sh.echo(cmd);
   }
 
+  const streams = ['stdin', 'stdout', 'stderr'];
+
   try {
+    const stdio = streams.map(s => getStream(opts[s], s === 'stdin' ? 'r' : 'w'));
+
     ps.execSync(cmd, {stdio});
+
+    streams.filter(
+      s => stdio && stdio[s] && typeof stdio[s] !== 'string' && stdio[s] !== process[s]
+    ).map(
+      s => fs.closeSync(stdio[s])
+    );
   } catch (e) {
     sh.exit(e.status);
   }
@@ -279,4 +326,43 @@ exports.instanbul = function(modules, opts) {
   ).then(
     coverage => createReport(coverage, opts)
   ).catch(rejectHandler);
+};
+
+/**
+ * Archive a directive.
+ *
+ * @param  {string}              source path to directory to archive
+ * @param  {string}              dest   path to save the zip archive
+ * @param  {?{root: string}}     opts   option; "root" will default to the
+ *                                      directory name
+ * @return {Promise<void, Error>}
+ */
+exports.zip = function(source, dest, opts) {
+  return new Promise((resolve, reject) => {
+    const output = fs.createWriteStream(dest);
+    const archive = archiver('zip');
+
+    opts = opts || {};
+
+    if (!opts.root) {
+      opts.root = path.basename(path.resolve(source));
+    }
+
+    output.on('close', function() {
+      resolve();
+    });
+
+    archive.on('error', function(err) {
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.bulk([{
+      expand: true,
+      cwd: source,
+      src: ['**'],
+      dest: opts.root
+    }]);
+    archive.finalize();
+  }).catch(rejectHandler);
 };
