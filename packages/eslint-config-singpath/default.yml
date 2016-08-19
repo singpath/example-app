@@ -258,7 +258,9 @@ rules:
   - args: after-used
     vars: all
   # disallow the use of variables before they are defined
-  no-use-before-define: error
+  no-use-before-define:
+  - error
+  - functions: false
 
   ## Node.js and CommonJS
   # 
