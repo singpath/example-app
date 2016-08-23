@@ -9,6 +9,7 @@ const path = require('path');
 const ps = require('child_process');
 const sh = require('shelljs');
 const systemIstanbul = require('systemjs-istanbul-hook');
+const noop = () => {};
 
 /**
  * Basic exec function.
@@ -134,23 +135,29 @@ exports.clean = function(paths, opts) {
 /**
  * Resolve with a module loader.
  *
+ * @param  {{config: function}} opts options
  * @return {Promise<jspm.Loader, Error>}
  */
-function loadJspmConfig() {
+function loadJspmConfig(opts) {
   sh.echo('Loading jspm config...');
 
-  return new Promise(resolve => resolve(new jspm.Loader()));
+  return new Promise(resolve => {
+    const loader = new jspm.Loader();
+
+    opts.config(loader);
+    resolve(loader);
+  });
 }
 
 /**
  * Resolve with a module loader which will add coverage instrumentation
  * to src code.
  *
- * @param  {{exclude: function}}  opts coverage options
+ * @param  {{exclude: function, config: function}}  opts coverage options
  * @return {Promise<void, Error>}
- */
+ , config: {}*/
 function hookInstanbul(opts) {
-  return loadJspmConfig().then(loader => {
+  return loadJspmConfig(opts).then(loader => {
     sh.echo('Registering instrumentation hook to loader...');
     systemIstanbul.hookSystemJS(loader, opts.exclude(loader.baseURL));
 
@@ -271,7 +278,7 @@ function rejectHandler(err) {
  * bridge mocha and jspm.
  *
  * @param  {string|array}  modules modules defining mocha tests.
- * @param  {?{ui: string}} opts    mocha runner options.
+ * @param  {?{ui: string, config: function}} opts    mocha runner options.
  * @return {Promise<void, Error>}
  */
 exports.mocha = function(modules, opts) {
@@ -280,9 +287,9 @@ exports.mocha = function(modules, opts) {
   modules = [].concat(modules);
 
   // set defaults options
-  opts = Object.assign({ui: 'bdd'}, opts);
+  opts = Object.assign({ui: 'bdd', config: noop}, opts);
 
-  return loadJspmConfig().then(
+  return loadJspmConfig(opts).then(
     loader => runTests(loader, modules, opts)
   ).catch(rejectHandler);
 };
@@ -293,7 +300,7 @@ exports.mocha = function(modules, opts) {
  * Bridge between mocha, instanbul and jspm.
  *
  * @param  {string|array} modules modules defining mocha tests.
- * @param  {?{ui: string, exclude: function, coverage: string}} opts mocha runner options.
+ * @param  {?{ui: string, exclude: function, coverage: string, config: function}} opts mocha runner options.
  * @return {Promise<void, Error>}
  */
 exports.instanbul = function(modules, opts) {
@@ -306,6 +313,7 @@ exports.instanbul = function(modules, opts) {
     ui: 'bdd',
     coverage: path.resolve('./coverage'),
     reports: ['lcov', 'text'],
+    config: noop,
 
     exclude(baseURL) {
       const jspmPackages = `${baseURL}jspm_packages`;
