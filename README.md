@@ -24,7 +24,6 @@ npm start
 
 - [JSPM](./docs/jspm.md): dependencies management and production build.
 - [Angular](./docs/angular.md): Component and DI.
-- [Observable](./docs/observable.md): sync/async operation orchestration.
 - [Firebase](./docs/firebase.md): Realtime database.
 - [Unit Testing](./docs/testing.md): using mocha and chai.
 - [Linting](./docs/lint.md).

@@ -1,31 +1,33 @@
+<!-- The component controller attached to scope as $ctrl by default -->
 <h2>{{$ctrl.listId}}</h2>
 
-<div rx-subscribe="$ctrl.shopping">
+<p ng-if="!$ctrl.loading.ready">Loading...</p>
 
-	<p ng-if="!$rx.next">Loading...</p>
+<div ng-messages="$ctrl.errors" role="alert">
+  <p ng-message="user">Something went wrong with the Firebase authentication.</p>
+  <p ng-message="items">Failed to load your shopping list.</p>
+</div>
 
-	<div ng-if="$rx.next">
-		
-		<ul class="list">
-		  <li ng-if="$rx.next.length == 0">Nothing to buy \o/</li>
-		  <li ng-repeat="item in $rx.next" class="item">
-		      <span class="main-item">{{item.$key}}</span>
-		      <a ng-href="#/lists/{{ $ctrl.listId }}/items/{{ item.$key }}"> info </a>
-		      <button ng-click="$ctrl.remove(item.$key)">&times;</button>
-		  </li>
-		</ul>
+<div id="lists" ng-if="$ctrl.loading.ready">
 
-		<p><small><a href="#/">back</a></small></p>
+	<ul class="list">
+	  <li ng-if="!$ctrl.items || $ctrl.items.length == 0">Nothing to buy \o/</li>
+	  <li ng-repeat="item in $ctrl.items" class="item">
+	      <span class="main-item">{{item.$id}}</span>
+	      <a ng-href="#/lists/{{ $ctrl.listId }}/items/{{ item.$id }}"> info </a>
+	      <button ng-click="$ctrl.remove(item.$id)">&times;</button>
+	  </li>
+	</ul>
 
-		<hr/>
+	<p><small><a href="#/">back</a></small></p>
 
-		<form ng-submit="$ctrl.add($ctrl.newItem)">
-		  <p>
-		    <input type="text" ng-model="$ctrl.newItem" size="30" placeholder="create new item" />
-		    <input class="btn-primary" type="submit" value="add" />
-		  </p>
-		</form>
+	<hr/>
 
-	</div>
-	
+	<form ng-submit="$ctrl.add($ctrl.newItem)">
+	  <p>
+	    <input type="text" ng-model="$ctrl.newItem" size="30" placeholder="create new item" />
+	    <input class="btn-primary" type="submit" value="add" />
+	  </p>
+	</form>
+
 </div>

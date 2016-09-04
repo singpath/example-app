@@ -87,7 +87,7 @@ View:
 
 ## Controllers
 
-Controllers augment a scope with values and function (usually to as event
+Controllers augment a scope with values and function (usually as event
 handlers). They are mainly used as bridges between views and models. They can
 either receive the scope to manipulate it, or an instance of the controller can
 be assign to a scope property (`$ctrl` by default for component controllers).
@@ -250,9 +250,8 @@ files include mocha tests. Other ".js" files export plain JS objects; they will
 be imported by the "src/example-app.js" to build the Angular app or by mocha
 tests.
 
-"src/services.js" includes our shared services, mainly our data-store
-service. For a bigger applications, the services would be split over multiple
-"services/*.js" files.
+"src/services/*.js" includes our shared services, mainly our data-store
+service.
 
 If we were to define shared filters, we would define them in
 "src/filters.js". Shared directives (like form validation directive) would go in
@@ -274,10 +273,10 @@ In this example, we will add a view to show when a shopping item has been added.
 In "src/components/shopping/shopping.html", for each item,
 add the link to our future view:
 ```html
-<li ng-repeat="item in $rx.next" class="item">
-  <span class="main-item">{{item.$key}}</span>
-  <a ng-href="#/lists/{{ $ctrl.listId }}/items/{{ item.$key }}">info</a>
-  <button ng-click="$ctrl.remove(item.$key)">&times;</button>
+<li ng-repeat="item in $ctrl.items" class="item">
+  <span class="main-item">{{item.$id}}</span>
+  <a ng-href="#/lists/{{ $ctrl.listId }}/items/{{ item.$id }}"> info </a>
+  <button ng-click="$ctrl.remove(item.$id)">&times;</button>
 </li>
 ```
 
@@ -287,7 +286,7 @@ home page, for now, while "ngRoute" is missing the new route configuration.
 
 #### 2. setting the new route
 
-In "src/example-app.js", find the routes configuration. It should look like:
+In "src/config.js", find the routes configuration. It should look like:
 ```js
 module.config(['$routeProvider', function($routeProvider) {
   $routeProvider
@@ -330,75 +329,87 @@ associated to a directive/component yet.
 
 #### 3. Add a new services operation
 
-We need to update our model to retrieve an item details.
+We need to update our model to retrieve an item details. If you looked at the
+`eaShopping` controller in "src/components/shopping/shopping.js, you noticed
+we access the datastore with:
 
-Locate the eaList service "src/example.js":
+    eaCurrentUser.list(listId) -> Promise<ItemList>
+    ItemList.ref() -> firebase.database.Reference
+
+We just need to add a method to returning the ref to a specific item.
+
+Locate the eaCurrentUser service "src/example-app.js" (our entry point):
 ```js
-import * as services from 'example-app/services.js';
+import services from 'example-app/services/index.js';
 
 [...]
 
-module.service('eaLists', services.Lists);
+module.service('eaCurrentUser', services.datastore.CurrentUser);
 ```
 
-Locate the `List` class in "src/example.js" and the `List.shoppingList(name)`
-method; It returns an instance of `ShoppingList` which currently models
-retrieving a list of items and updating the list.
+Locate where datastore get defined in :
+```
+import datastore from 'example-app/services/datastore.js';
 
-Locate `ShoppingList` and define a new method to retrieve the details of one
-item:
+[...]
+
+const services = {loadingFactory, Auth, datastore};
+
+export default services;
+```
+
+Locate `ItemList` and implement `ItemList.itemRef`:
 ```js
-export class ShoppingList {
+export class ItemList {
 
   /**
-   * A shopping list service.
-   *
-   * @param   {string} name  list name
-   * @param   {Lists}  lists lists service
+   * ItemList constructor.
+   * @param  {firebase.app.App} firebaseApp example-app Firebase App.
+   * @param  {string}           uid         The user uid.
+   * @param  {string}           listId      The list id/name.
    */
-  constructor(name, lists) {
-    this.lists = lists;
-    this.db = lists.firebaseApp.database();
-    this.user = lists.user;
+  constructor(firebaseApp, uid, listId) {
 
-    this.name = name;
+    /**
+     * @private
+     * @type {firebase.app.App}
+     */
+    this.firebaseApp = firebaseApp;
+
+    /**
+     * The user uid.
+     * @type {string}
+     */
+    this.uid = uid;
+
+    /**
+     * The list id/name.
+     * @type {string}
+     */
+    this.listId = listId;
+
   }
 
-  [...]
+[...]
 
   /**
-   * Return an observable monitoring the details of an item.
-   *
-   * While the user is not logged in, it emits undefined.
-   *
-   * If the item doesn't exist, it emit an object with $value set to null.
-   *
-   * @param  {string}              item item name.
-   * @return {Observable<?Object>}
+   * A firebase reference to a list item details.
+   * @param  {string} itemId The item id/name.
+   * @return {firebase.database.Reference}
    */
-  itemDetails(item) {
-
-    // observe user registration details.
-    return this.user.get().switchMap(user => {
-      const uid = user && user.$key;
-
-      if (!uid || user.$value === null) {
-        // we return an observable because switchMap expect an observable to flatten
-        return Rx.Observable.of(undefined);
-      }
-
-      // return an observable that emit the details each time it changes;
-      // switchMap will flatten it and emit the details.
-      return this.db.ref(`/listItems/${uid}/${this.name}/${item}`).observe('value');
-    });
+  itemRef(itemId) {
+    return this.firebaseApp.database().ref(
+      `/listItems/${this.uid}/${this.listId}/${itemId}`
+    );
   }
 
+[...]
 }
+
 ```
 
 While implementing the method, you should define some tests. See,
-["src/services.specs.js"](../src/services.specs.js) and
-`describe('itemDetails', function() {[...]})` for more details.
+"src/services/datastore.specs.js" for more details.
 
 
 #### 4. Define eaShoppingItem component
@@ -411,86 +422,242 @@ touch src/components/shopping-item/shopping-item.specs.js
 ```
 
 Implement the component options in
-"src/components/shopping-item/shopping-item.js":
+"src/components/shopping-item/shopping-item.js"; it should be similar to
+the eaShopping component:
 ```js
 /**
  * example-app/components/shopping-item/shopping-item.js - defines the
  * eaShoppingItem component.
  */
 
-class ShoppingItemController {
+/**
+ * Component controller - fetch the into info.
+ *
+ * Expect `$onChanges` to be called each time the `listId` and `itemId` bindings
+ * changes.
+ *
+ * Reset the list when the bindings or user id (log in/out) change.
+ *
+ */
+export class ShoppingItemController {
 
   /**
-   * Receive dependencies and initiate properties (set zero value).
+   * ShoppingItemController controller
    *
-   * @param  {List} eaLists List service
+   * Set properties default values and listen for changes to the current user status.
+   *
+   * Expect currentUser to give an initial call to the listener with the current
+   * status.
+   *
+   * @param  {ng.$log}                     $log            Angular logging service
+   * @param  {angularFire.$firebaseObject} $firebaseObject AngularFire synchronized array factory
+   * @param  {CurrentUser}                 eaCurrentUser   The current user
+   * @param  {function(): Loading}         eaLoading       Loading factory service.
    */
-  constructor(eaLists) {
-    this._lists = eaLists;
-    this.list = undefined;
+  constructor($log, $firebaseObject, eaCurrentUser, eaLoading) {
+
+    /**
+     * Angular logging service
+     * @type {ng.$log}
+     * @private
+     */
+    this.$log = $log;
+
+    /**
+     * AngularFire synchronized object factory.
+     * @type {angularFire.$firebaseObject}
+     * @private
+     */
+    this.$firebaseObject = $firebaseObject;
+
+    /**
+     * tracking loading items.
+     * @type {Loading}
+     */
+    this.loading = eaLoading();
+
+    /**
+     * Current user.
+     * @type {CurrentUser}
+     */
+    this.user = eaCurrentUser;
+
+    /**
+     * Synchronised object holding the item details.
+     * @type {angularFire.FirebeObject}
+     */
     this.item = undefined;
+
+    /**
+     * Stop watching for
+     * @type {function}
+     * @private
+     */
+    this.stopWatch = this.user.$watch(this.onAuthChanged.bind(this));
   }
 
   /**
-   * Controller hook called each time a component property changes.
+   * Set item details and destroy the previous one.
+   * @param {angularFire.FirebaseObject} item New item object.
+   */
+  setItem(item) {
+    this.loading.remove('item');
+
+    if (this.item && this.item.$destroy) {
+      this.item.$destroy();
+    }
+
+    this.item = item;
+  }
+
+  /**
+   * Angular hook called when the component is destroyed.
    *
-   * See https://docs.angularjs.org/api/ng/service/$compile#life-cycle-hooks
+   * Reset item details and stop watching the user status.
    *
-   * Update the list service each time the list id changes and update the item
-   * details each time the list id or item id changes.
+   * @see https://docs.angularjs.org/api/ng/service/$compile#life-cycle-hooks
+   */
+  $onDestroy() {
+    this.stopWatch();
+    this.setItem();
+    this.$log.debug('ShoppingItemController component destroyed');
+  }
+
+  /**
+   * Angular hook trigger each time one or more component binding changes.
    *
-   * @param {Map<string, {currentValue: Object, previousValue: Object, isFirstChange: function}>} changes changes list
+   * Should reset the item object and attempt to load the new one.
+   *
+   * @see https://docs.angularjs.org/api/ng/service/$compile#life-cycle-hooks
+   * @param  {object}    changes List of changes.
+   * @return {Promise<void,Error>}
    */
   $onChanges(changes) {
-    if (changes.listId) {
-      this.setList();
-      return;
+    if (!this.listId || !this.itemId) {
+      this.loading.error('item', new Error('"listId" and "itemId" are required attribute'));
     }
 
-    if (changes.itemId) {
-      this.setItem();
+    if (!changes.listId && !changes.itemId) {
+      return Promise.resolve();
     }
-  }
 
-  /**
-   * Set list service and reset item details observable.
-   */
-  setList() {
-    this.list = this.listId ? this._lists.shoppingList(this.listId) : undefined;
     this.setItem();
+
+    return this.loadItem();
   }
 
   /**
-   * Set item observable.
+   * Current User changes handler.
+   *
+   * Should reset the item and either track the user signing or load the item.
+   *
+   * @return {Promise<void,Error>}
    */
-  setItem() {
-    this.item = this.list ? this.list.itemDetails(this.itemId) : undefined;
+  onAuthChanged() {
+    const isLoggedIn = this.user && this.user.uid;
+
+    this.setItem();
+
+    if (!isLoggedIn) {
+      this.loading.add('user');
+
+      return Promise.resolve();
+    }
+
+    this.loading.remove('user');
+
+    return this.loadItem();
   }
 
-  // Other hooks
-  // See https://docs.angularjs.org/api/ng/service/$compile#life-cycle-hooks
+  /**
+   * load and update the list of item.
+   *
+   * Should set "item" resource as loading while loading the item details and
+   * abort if a new loading process start.
+   *
+   * @return {Promise<void,Error>}
+   */
+  loadItem() {
+    const ctx = this.loading.add('item');
+
+    ctx.uid = this.user && this.user.uid;
+    ctx.listId = this.listId;
+    ctx.itemId = this.itemId;
+
+    if (!ctx.uid || !ctx.listId || !ctx.itemId) {
+      return Promise.resolve();
+    }
+
+    return this.user.list(ctx.listId).then(list => {
+      if (ctx.done) {
+        return undefined;
+      }
+
+      ctx.item = this.$firebaseObject(list.itemRef(ctx.itemId));
+
+      return ctx.item.$loaded();
+    }).then(() => {
+      if (!ctx.done) {
+        this.setItem(ctx.item);
+
+        return;
+      }
+
+      if (ctx.item) {
+        ctx.item.$destroy();
+      }
+    }).catch(err => {
+      this.loading.error('item', err);
+
+      if (ctx.item && ctx.item.$destroy) {
+        ctx.item.$destroy();
+      }
+    });
+  }
 
 }
 
 // See https://docs.angularjs.org/guide/di#-inject-property-annotation
-ShoppingItemController.$inject = ['eaLists'];
+ShoppingItemController.$inject = ['$log', '$firebaseObject', 'eaCurrentUser', 'eaLoading'];
 
+/**
+ * eaShoppingItem component definition
+ * @type {ng.directiveDefinition}
+ * @private
+ */
 export const component = {
   template: `
     <h1>{{$ctrl.itemId}}</h1>
-    <div rx-subscribe="$ctrl.item">
-      <p ng-if="$rx.error">{{ $rx.error }}</p>
-      <p ng-if="!$rx.error && !$rx.next">Loading...</p>
-      <p ng-if="$rx.next && !$rx.next.createdAt">Not found.</p>
-      <p ng-if="$rx.next.createdAt">created at "{{$rx.next.createdAt | date:'medium'}}".</p>
+
+    <div ng-messages="$ctrl.loading.errors" role="alert">
+      <p ng-message="user">Something went wrong with the Firebase authentication.</p>
+      <p ng-message="item">Failed to load you item info.</p>
     </div>
+
+    <p ng-if="!$ctrl.loading.ready">Loading...</p>
+
+    <div ng-if="$ctrl.loading.ready">
+      <p ng-if="!$ctrl.item.createdAt">The item was removed.</p>
+      <p ng-if="$ctrl.item.createdAt">Item created at {{$ctrl.item.createdAt | date:'medium'}}</p>
+    </div>
+
     <p><small><a ng-href="#/lists/{{$ctrl.listId}}">back</a></small></p>
   `,
   bindings: {
     listId: '<',
     itemId: '<'
   },
-  cont
+  controller: ShoppingItemController
+};
+
+/**
+ * eaShoppingItem component definition and related services/directives/filters.
+ * @type {{component: ng.directiveDefinition}}
+ */
+const shoppingItem = {component};
+
+export default shoppingItem;
+
 ```
 
 The template is quite short and was written directly with the component options.
@@ -498,25 +665,42 @@ You could write it in a html file instead and import it (e.g.
 `import template as './shopping-item.html!text';`)
 
 While implementing the controller, you should write tests for the controller.
-See [src/components/shopping-item/shopping-item.specs.js](../src/components/shopping-item/shopping-item.specs.js)
+See "src/components/shopping-item/shopping-item.specs.js"
 for more details.
 
-Import the new tests in the in src/example-app.specs.js:
+Import the new tests in the in src/components/index.specs.js:
 ```js
 import 'example-app/components/shopping-item/shopping-item.specs.js';
 ```
 
+Import and add the component to the list of components in src/components/index.js:
+```js
+import rootApp from 'example-app/components/root-app/root-app.js';
+import shopping from 'example-app/components/shopping/shopping.js';
+import shoppingItem from 'example-app/components/shopping-item/shopping-item.js';
+import shoppingLists from 'example-app/components/shopping-lists/shopping-lists.js';
+
+/**
+ * exampleApp components.
+ * @type {object}
+ */
+const components = {
+  rootApp,
+  shopping,
+  shoppingItem,
+  shoppingLists
+};
+
+export default components;
+
+```
 
 #### 5. Register the component
 
 In "src/example-app.js", import the component options and register the
 component:
 ```js
-import {component as eaShoppingItem} from 'example-app/components/shopping-item/shopping-item.js';
-
-[...]
-
-module.component('eaShoppingItem', eaShoppingItem);
+module.component('eaShoppingItem', components.shoppingItem.component);
 ```
 
 If you refresh the app and visit the an item info pages, it should now work.

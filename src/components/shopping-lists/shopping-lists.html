@@ -1,29 +1,29 @@
 <!-- The component controller attached to scope as $ctrl by default -->
-<div rx-subscribe="$ctrl.lists">
+<p ng-if="!$ctrl.loading.ready">Loading...</p>
 
-	<p ng-if="!$rx.next">Loading...</p>
+<div ng-messages="$ctrl.error.errors" role="alert">
+  <p ng-message="user">Something went wrong with Firebase authentication.</p>
+  <p ng-message="lists">Failed to load you shopping lists.</p>
+</div>
 
-	<div ng-if="$rx.next">
-		
-		<h2>Select a lists</h2>
+<div id="lists" ng-if="$ctrl.loading.ready">
+	<h2>Select a lists</h2>
 
-		<ul class="list">
-			<li ng-if="$rx.next.length == 0">No shopping list</li>
-			<li ng-repeat="list in $rx.next" class="list item">
-		    <a ng-href="#/lists/{{list.$key}}" class="main-item">{{list.$key}}</a>
-		    <button ng-click="$ctrl.remove(list.$key)">&times;</button>
-			</li>
-		</ul>
+	<ul class="list">
+		<li ng-if="!$ctrl.lists || $ctrl.lists.length == 0">No shopping list</li>
+		<li ng-repeat="list in $ctrl.lists track by list.$id" class="list item">
+	    <a ng-href="#/lists/{{list.$id}}" class="main-item">{{list.$id}}</a>
+	    <button ng-click="$ctrl.remove(list.$id)">&times;</button>
+		</li>
+	</ul>
 
-		<hr/>
+	<hr/>
 
-		<form ng-submit="$ctrl.add($ctrl.newList)">
-		  <p>
-		    <input type="text" ng-model="$ctrl.newList" size="30" placeholder="create new item" />
-		    <input class="btn-primary" type="submit" value="add" />
-		  </p>
-		</form>
+	<form ng-submit="$ctrl.add($ctrl.newList)">
+	  <p>
+	    <input type="text" ng-model="$ctrl.newList" size="30" placeholder="create new item" />
+	    <input class="btn-primary" type="submit" value="add" />
+	  </p>
+	</form>
 
-	</div>
-	
 </div>
