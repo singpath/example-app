@@ -1,0 +1,39 @@
+{
+  "name": "chai-angular-injectable",
+  "version": "0.0.2",
+  "description": "Chai assertion testing a function has matching parameters and annotions",
+  "main": "index.js",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "index.js",
+    "tests.js"
+  ],
+  "scripts": {
+    "test": "mocha tests.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/singpath/example-app.git"
+  },
+  "keywords": [
+    "chai",
+    "angular",
+    "$inject"
+  ],
+  "author": "Chris Boesch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/singpath/example-app/issues"
+  },
+  "homepage": "https://github.com/singpath/example-app#readme",
+  "dependencies": {
+    "get-parameter-names": "^0.3.0"
+  },
+  "peerDependencies": {
+    "chai": "^3.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^3.0.2"
+  }
+}
