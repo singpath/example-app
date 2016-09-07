@@ -2,6 +2,7 @@ SystemJS.config({
   paths: {
     "npm:": "jspm_packages/npm/",
     "github:": "jspm_packages/github/",
+    "chai-angular-injectable": "packages/chai-angular-injectable/",
     "example-app/": "src/"
   },
   browserConfig: {
@@ -68,6 +69,14 @@ SystemJS.config({
       "meta": {
         "*.js": {
           "loader": "plugin-babel"
+        }
+      }
+    },
+    "chai-angular-injectable": {
+      "main": "index.js",
+      "meta": {
+        "*.js": {
+          "format": "cjs"
         }
       }
     }

@@ -11,11 +11,4 @@ describe('example-app/tools/chai.js', function() {
     testInjectMatch(fn);
   });
 
-  describe('testInjectSet', function() {
-    const fn = (foo, bar) => undefined;
-
-    fn.$inject = ['specialFoo', 'bar'];
-    testInjectSet(fn);
-  });
-
 });
