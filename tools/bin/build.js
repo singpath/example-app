@@ -20,12 +20,13 @@ const outputMin = path.join(dist, 'example-app.min.js');
 const outputTree = path.join(dist, 'example-app.tree.html');
 
 // jspm options
-const deps = ['angular', 'angular-route', 'firebase', 'rxjs/bundles/Rx.umd.js'];
+const deps = ['angular', 'angular-route', 'angular-messages', 'firebase', 'angularfire'];
 const globalDeps = {
   'angular/angular.js': 'angular',
   'angular-route/angular-route.js': 'angular',
+  'angular-messages/angular-messages.js': 'angular',
   'firebase/firebase.js': 'firebase',
-  'rxjs/bundles/Rx.umd.js': 'Rx'
+  'angularfire/dist/angularfire.js': 'angular'
 };
 const src = ['example-app'].concat(deps).join(' - ');
 const depsOpts = `--global-name exampleApp --global-deps '${JSON.stringify(globalDeps)}'`;

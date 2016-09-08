@@ -5,75 +5,78 @@ Store and sync data in realtime.
 
 ## Setup
 
-Install firebase as a JSPM dependency and some helper:
+Install firebase and angularFire as JSPM dependencies:
 ```shell
-jspm install firebase@3 npm:rx-firebase npm:rxjs@5.0.0-beta.8
+jspm install firebase@3
+jspm install angularfire@2
 ```
 
-Add the firebaseApp service and extend firebase with Observable methods; in
-src/example-app.js:
+Add angulireFire module to the list of dependencies and setup the firebaseApp
+service; in src/example-app.js:
 ```js
 import angular from 'angular'
 import firebase from 'firebase';
-import Rx from 'example-app/tools/rx.js';
+import 'angularfire';
 
-import ngRxSubscribe from 'angular-rx-subscribe';
-import rxFirebase from 'rx-firebase';
-
-// extend Firebase with `rx-firebase`.
-rxFirebase.extend(firebase, Rx.Observable);
-
-// set `angular-rx-subscribe` as a dependency.
-const module = angular.module('exampleApp', ['rxSubscribe'])
+// set `angularFire` as a dependency.
+const module = angular.module('exampleApp', ['firebase'])
   // add `firebaseApp` constant.
   .constant('firebaseApp', firebase.initializeApp({
     apiKey: 'AIzaSyBG-0rkAfYmmWIltG3ffevLu4n3ZYuIito',
     authDomain: 'example-app-8c809.firebaseapp.com',
     databaseURL: 'https://example-app-8c809.firebaseio.com'
-  }))
-  // extend Rx.Observable with `$subscribe` method.
-  .run(['$rootScope', function($rootScope) {
-    ngRxSubscribe.extend(Rx.Observable, $rootScope);
-  }]);
+  }));
 ```
 
 
 ## Usage
 
-`rx-firebase` adds `Firebase.auth.Auth.observeAuthState`. which behaves
-like `onAuthStateChanged` but returns an observable, adds
-`Firebase.database.Query.prototype.observe(eventType)`. which behaves like
-`on(eventType, handler)` but return an observable, and adds
-`Firebase.database.Query.prototype.observeChildren(eventType)` which compose observables
-on the "child_*" event type to keep an array ordered and in sync with firebase
-refence.
+`angularFire` adds `$firebaseObject`, `$firebaseArray` and `$firebaseAuth`. They
+should be used to synchronise firebase database queries and firebase
+authentications process with the scope.
 
-
-You can create a reference observable with:
+You can create a synchronized object like that:
 ```js
-this.shopping = firebaseApp.database.ref(
-  `/listItems/${uid}/${name}`
-).orderByKey().observeChildren();
+// <app-config></app-config> component
+module.component('appConfig', {
+  template: `
+  <p ng-if="$ctrl.loading">loading...</p>
+  <p ng-if="!$ctrl.loading">Online: {{$ctrl.config.online}}</p>
+  `,
+
+  controller: [
+    '$firebaseObject',
+    'store',
+    class Ctrl {
+
+      constructor($firebaseObject, store) {
+        const ref = store.configRef();
+
+        this.config = $firebaseObject(ref);
+
+        this.loading = true;
+        this.config.$loaded().then(() => {
+          this.loading = false;
+        });
+      }
+
+    }
+  ]
+});
 ```
 
-To consume the observable in your template (assuming you have
-`angular-rx-subscribe` setup):
-```html
-<ul rx-subscribe="$ctrl.shopping">
-  <li ng-repeat="item in $rx.next">{{item.$key}}</li>
-</ul>
-```
+Play with [full example](https://jsbin.com/nepexol/edit?js,output).
+
 
 ## Todo
 
 - show rules.
 - how to test rules.
 - how to set db rules with firebase-tools.
+- more firebase example
 
 
 ## Reference
 
 - [Firebase Documentation](https://firebase.google.com/docs/database/web/start).
-- [angular-rx-subscribe](https://www.npmjs.com/package/angular-rx-subscribe).
-- [rx-firebase](https://www.npmjs.com/package/rx-firebase).
-- [RxJS v5](http://reactivex.io/rxjs/manual/index.html).
+- [AngularFire](https://github.com/firebase/angularfire/blob/master/docs/quickstart.md)
