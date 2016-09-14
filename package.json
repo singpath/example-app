@@ -11,7 +11,7 @@
     "archiver": "^1.0.0",
     "babel-eslint": "^6.0.4",
     "coveralls": "^2.11.9",
-    "eslint": "^2.13.1",
+    "eslint": "^3.5.0",
     "eslint-plugin-babel": "^3.2.0",
     "eslint-plugin-html": "^1.5.1",
     "http-server": "^0.9.0",
@@ -139,15 +139,15 @@
     "clean": "node ./tools/bin/clean.js",
     "cover": "node ./tools/bin/cover.js",
     "coveralls": "node ./tools/bin/cover.js && cat ./coverage/lcov.info | coveralls",
-    "lint": "npm run lint-no-fix -- --fix",
-    "lint-no-fix": "eslint src/ packages/ tools/ index.html",
+    "format": "npm run lint -- --fix",
+    "lint": "eslint src/ packages/ tools/ index.html",
     "postinstall": "jspm install",
     "start": "http-server -c-1 -p 8000",
     "start:build": "http-server dist/ -c-1 -p 8000",
     "test": "node ./tools/bin/test.js"
   },
   "pre-commit": [
-    "lint-no-fix"
+    "lint"
   ],
   "repository": {
     "type": "git",

@@ -11,7 +11,7 @@ npm run lint
 Install `eslint` and the set of default rules (`eslint-config-singpath`)
 and a plugin to handle html files:
 ```shell
-npm install --save-dev eslint eslint-plugin-html eslint-config-singpath
+npm install --save-dev eslint@3 eslint-plugin-html eslint-config-singpath
 ```
 
 Setup a YAML or JSON encoded eslint config file:
@@ -26,6 +26,7 @@ in the `scripts` object):
 {
   "scripts": {
     "lint": "eslint src/ index.html",
+    "format": "npm run lint -- --fix",
     "test": "bash ./tools/bin/test.sh"
   }
 }
@@ -38,7 +39,7 @@ npm run lint
 
 To auto fix most formatting issue:
 ```shell
-npm run lint -- --fix
+npm run format
 ```
 
 
@@ -102,19 +103,8 @@ rules:
     - "never"
 ```
 
-Once the rules are stable, you can change the the lint command to:
-```json
-{
-  "scripts": {
-    "lint": "eslint src/ index*.js --fix",
-    "lint-no-fix": "eslint src/ index*.js",
-    "test": "bash ./tools/bin/test.sh"
-  }
-}
-```
-
-`npm run lint` will fix trivial errors (like trailing white spaces). The
-`lint-no-fix` command could be used in git hook or a CI test.
+`npm run format` will fix trivial errors (like trailing white spaces). The
+`lint` command could be used in git hook or a CI test.
 
 
 ## Rule exceptions
@@ -139,6 +129,9 @@ Or by disabling the rules:
 
 ## Precommit hook
 
+To lint changes on commit, you can use a git pre-commit hook. npm "pre-commit"
+module can setup it for you.
+
 Install `pre-commit`:
 ```
 npm install pre-commit --save-dev
@@ -147,7 +140,7 @@ npm install pre-commit --save-dev
 Update `package.json` with:
 ```json
 {
-  "pre-commit": [ "lint-no-fix" ]
+  "pre-commit": [ "lint" ]
 }
 ```
 
@@ -158,7 +151,7 @@ Update `package.json` with:
 `packages/eslint-config-singpath`. The rules are defined in `default.yml`.
 Specific node or jspm settings are defined in `node.js` and `module.js`.
 
-`default.yml` has each rule commented, included if it's recommended by eslint
+`default.yml` has each rule commented; it emntion if it's recommended by eslint
 and if it's fixable (using `--fix` CLI option).
 
 To publish it:
