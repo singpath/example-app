@@ -1,6 +1,6 @@
 {
   "name": "eslint-config-singpath",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "main": "index.js",
   "author": "Chris Boesch",
   "description": "Default ESLint configuration for Singpath projects.",
@@ -23,6 +23,9 @@
   "bugs": "https://github.com/singpath/example-app/issues/",
   "dependencies": {
     "js-yaml": "^3.5.1"
+  },
+  "peerDependencies": {
+    "eslint": "^3.5.0"
   },
   "keywords": [
     "singpathconfig",

@@ -11,7 +11,7 @@ Contains the default ESLint configuration for SingPath projects.
 
 You can install ESLint using npm:
 ```js
-npm install eslint --save-dev
+npm install eslint@3 --save-dev
 ```
 
 Then install this configuration:

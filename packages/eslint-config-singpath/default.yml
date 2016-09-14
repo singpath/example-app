@@ -29,7 +29,7 @@ rules:
   no-ex-assign: error
   # disallow unnecessary boolean casts  (recommended)
   no-extra-boolean-cast: error
-  # disallow unnecessary parentheses
+  # disallow unnecessary parentheses (fixable)
   no-extra-parens: 'off'
   # disallow unnecessary semicolons  (recommended) (fixable)
   no-extra-semi: error
@@ -41,8 +41,8 @@ rules:
   no-invalid-regexp: error
   # disallow irregular whitespace outside of strings and comments  (recommended)
   no-irregular-whitespace: error
-  # disallow negating the left operand in `in` expressions  (recommended)
-  no-negated-in-lhs: error
+  # disallow negating the left operand in `in` expressions  (recommended) (deprecated)
+  no-negated-in-lhs: 'off'
   # disallow calling global object properties as functions  (recommended)
   no-obj-calls: error
   # Disallow use of `Object.prototypes` builtins directly
@@ -51,12 +51,16 @@ rules:
   no-regex-spaces: error
   # disallow sparse arrays  (recommended)
   no-sparse-arrays: error
+  # Disallow template literal placeholder syntax in regular strings
+  no-template-curly-in-string: error
   # disallow confusing multiline expressions  (recommended)
   no-unexpected-multiline: error
   # disallow unreachable code after `return`, `throw`, `continue`, and `break` statements  (recommended)
   no-unreachable: error
   # disallow control flow statements in `finally` blocks  (recommended)
   no-unsafe-finally: error
+  # disallow negating the left operand of relational operators (recommended) (fixable)
+  no-unsafe-negation: error
   # require calls to `isNaN()` when checking for `NaN`  (recommended)
   use-isnan: error
   # enforce valid JSDoc comments
@@ -84,7 +88,9 @@ rules:
     - next
   # enforce the use of variables within the scope they are defined
   block-scoped-var: 'off'
-  # enforce a maximum cyclomatic complexity allowed in a program
+  # enforce that class methods utilize `this`
+  class-methods-use-this: 'off'
+  # enforce a maximum cyclomatic complexity allowed in a program (recommended)
   complexity:
   - error
   - 20
@@ -100,7 +106,7 @@ rules:
   dot-location: 
   - error
   - property
-  # enforce dot notation whenever possible
+  # enforce dot notation whenever possible (fixable)
   dot-notation:
   - error
   - allowKeywords: true
@@ -136,9 +142,11 @@ rules:
   no-extra-label: 'off'
   # disallow fallthrough of `case` statements  (recommended)
   no-fallthrough: error
-  # disallow leading or trailing decimal points in numeric literals
+  # disallow leading or trailing decimal points in numeric literals (fixable)
   no-floating-decimal: error
-  # disallow shorthand type conversions
+  # disallow assignments to native objects or read-only global variables (recommended)
+  no-global-assign: error
+  # disallow shorthand type conversions (fixable)
   no-implicit-coercion: 'off'
   # disallow `var` and named `function` declarations in the global scope
   no-implicit-globals: 'off'
@@ -160,8 +168,8 @@ rules:
   no-multi-spaces: error
   # disallow multiline strings
   no-multi-str: error
-  # disallow reassigning native objects
-  no-native-reassign: error
+  # disallow reassigning native objects (recommended) (deprecated)
+  no-native-reassign: 'off'
   # disallow `new` operators outside of assignments or comparisons
   no-new: error
   # disallow `new` operators with the `Function` object
@@ -284,6 +292,8 @@ rules:
   no-process-exit: error
   # disallow specified modules when loaded by `require`
   no-restricted-modules: 'off'
+  # disallow certain properties on certain objects
+  no-restricted-properties: 'off'
   # disallow synchronous methods
   no-sync: 'off'
 
@@ -309,7 +319,7 @@ rules:
   comma-dangle: error
   # enforce consistent spacing before and after commas (fixable)
   comma-spacing: error
-  # enforce consistent comma style
+  # enforce consistent comma style (fixable)
   comma-style:
   - error
   - last
@@ -321,6 +331,10 @@ rules:
   consistent-this: 'off'
   # enforce at least one newline at the end of files (fixable)
   eol-last: error
+  # require or disallow spacing between `function` identifiers and their invocations (fixable)
+  func-call-spacing:
+  - error
+  - never
   # require or disallow named `function` expressions
   func-names: 'off'
   # enforce the consistent use of either `function` declarations or expressions
@@ -359,6 +373,10 @@ rules:
     afterLineComment: false
     beforeBlockComment: true
     beforeLineComment: true
+  # require or disallow newlines around directives
+  lines-around-directive: 'off'
+  # enforce position of line comments
+  line-comment-position: 'off'
   # enforce a maximum depth that blocks can be nested
   max-depth: 'off'
   # enforce a maximum line length
@@ -376,16 +394,18 @@ rules:
   max-statements: 'off'
   # enforce a maximum number of statements allowed per line
   max-statements-per-line: 'off'
+  # enforce newlines between operands of ternary expressions
+  multiline-ternary: 'off'
   # require constructor `function` names to begin with a capital letter
   new-cap:
   - error
   - newIsCapExceptions:
     - controller
-  # require parentheses when invoking a constructor with no arguments
+  # require parentheses when invoking a constructor with no arguments (fixable)
   new-parens: error
   # require or disallow an empty line after `var` declarations
   newline-after-var: error
-  # require an empty line before `return` statements
+  # require an empty line before `return` statements (fixable)
   newline-before-return: 'off'
   # require a newline after each call in a method chain
   newline-per-chained-call: 'off'
@@ -421,8 +441,10 @@ rules:
   no-plusplus: 'off'
   # disallow specified syntax
   no-restricted-syntax: 'off'
-  # disallow spacing between `function` identifiers and their applications (fixable)
-  no-spaced-func: error
+  # disallow spacing between `function` identifiers and their applications (fixable) (deprecated)
+  no-spaced-func: 'off'
+  # Disallow tabs in file
+  no-tabs: 'off'
   # disallow ternary operators
   no-ternary: 'off'
   # disallow trailing whitespace at the end of lines (fixable)
@@ -477,6 +499,8 @@ rules:
   - error
   - after: true
     before: false
+  # requires object keys to be sorted
+  sort-keys: 'off'
   # require variables within the same declaration block to be sorted
   sort-vars: 'off'
   # enforce consistent spacing before blocks (fixable)
@@ -502,7 +526,7 @@ rules:
     - '-'
   # require or disallow the Unicode BOM (fixable)
   unicode-bom: 'off'
-  # require parenthesis around regex literals
+  # require parenthesis around regex literals (fixable)
   wrap-regex: 'off'
 
   ## ECMAScript 6
@@ -511,7 +535,7 @@ rules:
   # 
   # require braces around arrow function bodies
   arrow-body-style: 'off'
-  # require parentheses around arrow function arguments
+  # require parentheses around arrow function arguments (fixable)
   arrow-parens: 'off'
   # enforce consistent spacing before and after the arrow in arrow functions (fixable)
   arrow-spacing: 'off'
@@ -541,14 +565,16 @@ rules:
   no-useless-constructor: 'off'
   # disallow renaming import, export, and destructured assignments to the same name (fixable)
   no-useless-rename: error
-  # require `let` or `const` instead of `var`
+  # require `let` or `const` instead of `var` (fixable)
   no-var: 'off'
   # require or disallow method and property shorthand syntax for object literals
   object-shorthand: 'off'
-  # require arrow functions as callbacks
+  # require arrow functions as callbacks (fixable)
   prefer-arrow-callback: 'off'
-  # require `const` declarations for variables that are never reassigned after declared
+  # require `const` declarations for variables that are never reassigned after declared (fixable)
   prefer-const: 'off'
+  # disallow `parseInt()` in favor of binary, octal, and hexadecimal literals
+  prefer-numeric-literals: error
   # require `Reflect` methods where applicable
   prefer-reflect: 'off'
   # require rest parameters instead of `arguments`
@@ -563,6 +589,8 @@ rules:
   rest-spread-spacing: 'off'
   # enforce sorted import declarations within modules
   sort-imports: 'off'
+  # require symbol descriptions
+  symbol-description: error
   # require or disallow spacing around embedded expressions of template strings (fixable)
   template-curly-spacing: 'off'
   # require or disallow spacing around the `*` in `yield*` expressions (fixable)
